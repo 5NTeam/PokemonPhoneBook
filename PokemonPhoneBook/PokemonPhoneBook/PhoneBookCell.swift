@@ -97,7 +97,6 @@ private extension PhoneBookCell {
         self.numberLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview()
-            $0.leading.equalTo(self.nameLabel.snp.trailing)
         }
     }
 }
