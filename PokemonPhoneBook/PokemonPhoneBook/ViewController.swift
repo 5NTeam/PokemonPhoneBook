@@ -37,19 +37,6 @@ private extension ViewController {
         setupUILayout()
     }
     
-    func setupPushButtonView() {
-        var config = UIButton.Configuration.plain()
-        
-        var titleAttr = AttributedString.init("추가")
-        titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
-        
-        config.attributedTitle = titleAttr
-        config.baseForegroundColor = .systemBlue
-        
-        self.pushButton.configuration = config
-        self.pushButton.backgroundColor = .clear
-    }
-    
     func setupNavigationTitle() {
         navigationTitle.text = "친구 목록"
         navigationTitle.font = UIFont.systemFont(ofSize: 25, weight: .bold)
@@ -83,6 +70,23 @@ private extension ViewController {
             $0.top.bottom.equalTo(self.navigationTitle)
             $0.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
+    }
+    
+    func setupPushButtonView() {
+        var config = UIButton.Configuration.plain()
+        
+        var titleAttr = AttributedString.init("추가")
+        titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
+        
+        config.attributedTitle = titleAttr
+        config.baseForegroundColor = .systemBlue
+        
+        self.pushButton.configuration = config
+        self.pushButton.backgroundColor = .clear
+    }
+    
+    @objc func pushDestinationView() {
+        
     }
 }
 
