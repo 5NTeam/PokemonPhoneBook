@@ -13,13 +13,18 @@ final class PhoneBookViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
-        
-        setupNavigationTitle()
+        configUI()
     }
 }
 
 private extension PhoneBookViewController {
+    func configUI() {
+        view.backgroundColor = .white
+
+        setupNavigationTitle()
+        setupNavigationRightButton()
+    }
+    
     func setupNavigationTitle() {
         let title = UILabel()
         title.text = "연락처 추가"
@@ -29,5 +34,14 @@ private extension PhoneBookViewController {
         title.backgroundColor = .clear
         
         self.navigationItem.titleView = title
+    }
+    
+    func setupNavigationRightButton() {
+        let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
+        self.navigationItem.rightBarButtonItem = rightButton
+    }
+    
+    @objc func savePhoneNumber() {
+        
     }
 }
