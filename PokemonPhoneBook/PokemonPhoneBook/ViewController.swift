@@ -62,12 +62,13 @@ private extension ViewController {
     
     func setupUILayout() {
         self.navigationTitle.snp.makeConstraints {
-            $0.top.trailing.leading.equalTo(view.safeAreaLayoutGuide)
+            $0.trailing.leading.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(-10)
             $0.height.equalTo(60)
         }
         
         self.tableView.snp.makeConstraints {
-            $0.trailing.leading.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.trailing.leading.bottom.equalTo(view)
             $0.top.equalTo(self.navigationTitle.snp.bottom).inset(10)
         }
         

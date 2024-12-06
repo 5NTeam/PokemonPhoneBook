@@ -13,7 +13,21 @@ final class PhoneBookViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .systemPink
+        view.backgroundColor = .white
+        
+        setupNavigationTitle()
     }
-    
+}
+
+private extension PhoneBookViewController {
+    func setupNavigationTitle() {
+        let title = UILabel()
+        title.text = "연락처 추가"
+        title.textColor = .black
+        title.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        title.textAlignment = .center
+        title.backgroundColor = .clear
+        
+        self.navigationItem.titleView = title
+    }
 }
