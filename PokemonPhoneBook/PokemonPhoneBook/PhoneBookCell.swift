@@ -32,6 +32,7 @@ final class PhoneBookCell: UITableViewCell {
 
 private extension PhoneBookCell {
     func configUI() {
+        self.backgroundColor = .clear
         self.addSubview(self.stackView)
         
         setupStackView()
@@ -41,42 +42,48 @@ private extension PhoneBookCell {
     }
     
     func setupImageView() {
-        self.imageView?.contentMode = .scaleAspectFit
-        self.imageView?.backgroundColor = UIColor.lightGray
-        self.imageView?.layer.cornerRadius = 25
-        self.imageView?.layer.borderColor = UIColor.gray.cgColor
-        self.imageView?.layer.borderWidth = 2
-        self.imageView?.clipsToBounds = true
+        self.profileImage.contentMode = .scaleAspectFit
+        self.profileImage.backgroundColor = .lightGray
+        self.profileImage.layer.cornerRadius = 30
+        self.profileImage.clipsToBounds = true
+        self.profileImage.layer.borderColor = UIColor.gray.cgColor
+        self.profileImage.layer.borderWidth = 2
     }
     
     func setupLabelView() {
         [self.nameLabel, self.numberLabel].forEach {
-            $0.textColor = UIColor.black
-            $0.font = UIFont.systemFont(ofSize: 15, weight: .regular)
-            $0.backgroundColor = UIColor.clear
-            $0.textAlignment = .center
+            $0.textColor = .black
+            $0.font = UIFont.systemFont(ofSize: 20, weight: .regular)
+            $0.backgroundColor = .clear
             $0.numberOfLines = 1
         }
+        self.nameLabel.text = "name"
+        self.nameLabel.textAlignment = .left
+        self.numberLabel.text = "010-1111-2222"
+        self.numberLabel.textAlignment = .right
     }
     
     func setupStackView() {
         self.stackView.axis = .horizontal
-        self.stackView.spacing = 0
-        self.stackView.alignment = .leading
+        self.stackView.spacing = 10
+        self.stackView.alignment = .center
         self.stackView.distribution = .fill
+        self.stackView.backgroundColor = .clear
         
-        [self.nameLabel, self.numberLabel, self.profileImage].forEach {
+        [self.profileImage, self.nameLabel, self.numberLabel].forEach {
             self.stackView.addArrangedSubview($0)
         }
     }
     
     func setupUILayout() {
         self.stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.center.equalToSuperview()
+            $0.height.equalToSuperview()
+            $0.width.equalToSuperview().inset(30)
         }
         
         self.profileImage.snp.makeConstraints {
-            $0.width.height.equalTo(50)
+            $0.width.height.equalTo(60)
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview()
         }
@@ -84,7 +91,7 @@ private extension PhoneBookCell {
         self.nameLabel.snp.makeConstraints {
             $0.width.equalTo(100)
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(self.profileImage.snp.trailing)
+            $0.leading.equalTo(self.profileImage.snp.trailing).offset(10)
         }
         
         self.numberLabel.snp.makeConstraints {
