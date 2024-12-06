@@ -21,12 +21,17 @@ final class ViewController: UIViewController {
         
         configUI()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.navigationBar.isHidden = true
+    }
 }
 
 private extension ViewController {
     func configUI() {
         view.backgroundColor = .white
-        self.navigationController?.navigationBar.isHidden = true
         [self.tableView,
          self.navigationTitle,
          self.pushButton].forEach { view.addSubview($0) }
@@ -83,10 +88,12 @@ private extension ViewController {
         
         self.pushButton.configuration = config
         self.pushButton.backgroundColor = .clear
+        self.pushButton.addTarget(self, action: #selector(pushDestinationView), for: .touchUpInside)
     }
     
     @objc func pushDestinationView() {
-        
+        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
+        self.navigationController?.navigationBar.isHidden = false
     }
 }
 
