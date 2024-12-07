@@ -15,10 +15,12 @@ class ContactTableViewCell: UITableViewCell {
     // 프로필 이미지
     public let profileImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.backgroundColor = .white
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.borderColor = UIColor.gray.cgColor
         imageView.layer.borderWidth = 1
+        imageView.layer.cornerRadius = 30
         return imageView
     }()
     
@@ -71,12 +73,6 @@ class ContactTableViewCell: UITableViewCell {
             $0.centerY.equalToSuperview()
         }
     }
-    // ImageView 원형으로 만들기
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
-    }
-    
 }
 
 
