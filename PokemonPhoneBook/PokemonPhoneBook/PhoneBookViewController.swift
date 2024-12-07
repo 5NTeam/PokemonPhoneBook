@@ -93,7 +93,7 @@ class PhoneBookViewController: UIViewController {
         }
         
     }
-    
+    // test
     
     @objc private func generateRandomImage() {
         print("랜덤 이미지 버튼 눌림")
