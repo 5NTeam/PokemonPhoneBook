@@ -27,7 +27,7 @@ class PhoneBookViewController: UIViewController {
         button.setTitleColor(UIColor.darkGray, for: .normal)
         button.setTitle("랜덤 이미지 생성", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        button.addTarget(PhoneBookViewController.self,action: #selector(generateRandomImage),for: .touchUpInside)
+        button.addTarget(self,action: #selector(generateRandomImage),for: .touchUpInside)
         return button
     }()
     // 이름 텍스트 필드
@@ -97,6 +97,13 @@ class PhoneBookViewController: UIViewController {
     
     @objc private func generateRandomImage() {
         print("랜덤 이미지 버튼 눌림")
+        
+        fetchRandomPokemonImage { [weak self] image in
+            guard let self = self, let image = image else { return }
+            DispatchQueue.main.async {
+                self.profileImageView.image = image
+            }
+        }
     }
     
     @objc private func applyButtonTapped() {

@@ -9,12 +9,16 @@ import UIKit
 
 // 포켓몬 데이터 모델
 struct PokemonResult: Codable {
+    let id: Int
+    let name: String
+    let height: Int
+    let weight: Int
     let sprites: Sprites
 }
 
 struct Sprites: Codable {
     let frontDefault: String
-    
+
     enum CodingKeys: String, CodingKey {
         case frontDefault = "front_default"
     }
@@ -68,10 +72,16 @@ func fetchRandomPokemonImage(completion: @escaping (UIImage?) -> Void) {
             return
         }
         
-        if let data = try? Data(contentsOf: imageUrl), let image = UIImage(data: data) {
-            completion(image)
-        } else {
-            completion(nil)
+        DispatchQueue.global().async {
+            if let data = try? Data(contentsOf: imageUrl), let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    completion(image)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+            }
         }
     }
 }
