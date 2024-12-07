@@ -54,6 +54,8 @@ class ContactListViewController: UIViewController {
     
     @objc private func didTapAddButton() {
         print("추가 버튼 눌림")
+        let phoneBookVC = PhoneBookViewController()
+        navigationController?.pushViewController(phoneBookVC, animated: true)
     }
 }
 
