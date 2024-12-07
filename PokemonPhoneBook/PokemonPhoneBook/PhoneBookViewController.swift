@@ -13,7 +13,7 @@ final class PhoneBookViewController: UIViewController {
     private let profileImageView = UIImageView()
     private let profileImageRandomChangeButton = UIButton()
     private let nameTextField = UITextField()
-    private let numberTextView = UITextView()
+    private let numberTextField = UITextField()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,12 +29,11 @@ private extension PhoneBookViewController {
         [self.profileImageView,
          self.profileImageRandomChangeButton,
          self.nameTextField,
-         self.numberTextView].forEach { view.addSubview($0) }
+         self.numberTextField].forEach { view.addSubview($0) }
 
         setupImageView()
         setupChangeButton()
         setupTextField()
-        setupTextView()
         setupNavigationTitle()
         setupNavigationRightButton()
         setupUILayout()
@@ -50,23 +49,14 @@ private extension PhoneBookViewController {
     }
     
     func setupTextField() {
-        self.nameTextField.text = ""
-        self.nameTextField.font = UIFont.systemFont(ofSize: 15, weight: .light)
-        self.nameTextField.borderStyle = .roundedRect
+        [self.nameTextField, self.numberTextField].forEach {
+            $0.font = UIFont.systemFont(ofSize: 15, weight: .light)
+            $0.borderStyle = .roundedRect
+            $0.textColor = .black
+            $0.keyboardType = .default
+        }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
-        self.nameTextField.textColor = .black
-        self.nameTextField.keyboardType = .default
-    }
-    
-    func setupTextView() {
-        self.numberTextView.text = ""
-        self.numberTextView.textColor = .black
-        self.numberTextView.font = UIFont.systemFont(ofSize: 15, weight: .light)
-        self.numberTextView.textAlignment = .left
-        self.numberTextView.layer.borderColor = UIColor.gray.cgColor
-        self.numberTextView.layer.borderWidth = 1
-        self.numberTextView.layer.cornerRadius = 10
-        self.numberTextView.clipsToBounds = true
+        self.numberTextField.placeholder = "전화번호를 입력해 주세요"
     }
     
     func setupChangeButton() {
@@ -108,7 +98,7 @@ private extension PhoneBookViewController {
             $0.height.equalTo(40)
         }
         
-        self.numberTextView.snp.makeConstraints {
+        self.numberTextField.snp.makeConstraints {
             $0.top.equalTo(self.nameTextField.snp.bottom).offset(15)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(300)
