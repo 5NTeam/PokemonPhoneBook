@@ -8,5 +8,15 @@
 import UIKit
 
 struct PokemonModel: Codable {
+    let id: String
+    let name: String
+    let sprites: [PokemonSprites]
+}
+
+struct PokemonSprites: Codable {
+    let frontDefault: String
     
+    enum CodingKeys: String, CodingKey {
+        case frontDefault = "front_default"
+    }
 }
