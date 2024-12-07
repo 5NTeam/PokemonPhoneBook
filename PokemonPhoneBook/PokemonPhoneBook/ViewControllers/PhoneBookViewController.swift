@@ -83,7 +83,33 @@ private extension PhoneBookViewController {
     
     /// 프로필 이미지를 랜덤으로 변경하는 메소드
     @objc func changeProfileImage() {
+        print("Button Tapped")
         
+        self.fetchData { [weak self] (result: PokemonModel?) in
+            guard let self, let result else {
+                print("데이터 불러오기 오류")
+                return
+            }
+            
+            guard let imageURL = URL(string: result.sprites.frontDefault) else {
+                print("잘못된 이미지 URL")
+                return
+            }
+            
+            if let imageData = try? Data(contentsOf: imageURL) {
+                if let image = UIImage(data: imageData) {
+                    DispatchQueue.main.async {
+                        self.profileImageView.image = image
+                        self.view.layoutIfNeeded()
+                        print("이미지 변환 성공")
+                    }
+                } else {
+                    print("이미지 변환 실패")
+                }
+            } else {
+                print("이미지 URL, 데이터 변환 실패")
+            }
+        }
     }
     
     /// 서브 뷰의 모든 UI 레이아웃을 설정하는 메소드
@@ -137,5 +163,54 @@ private extension PhoneBookViewController {
     /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
         
+    }
+}
+
+// MARK: - PhoneBookViewController Fetch Method
+private extension PhoneBookViewController {
+    
+    func fetchData<T: Decodable>(_ completion: @escaping (T?) -> Void) {
+        let randomNumber = Int.random(in: 1...1000)
+        guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon/\(randomNumber)") else {
+            print("잘못된 URL 입니다")
+            completion(nil)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        URLSession.shared.dataTask(with: request) { (data, response, error) in
+            guard let data, error == nil else {
+                print("잘못된 호출입니다.")
+                completion(nil)
+                return
+            }
+            
+            if let response = response as? HTTPURLResponse {
+                
+                let successRange: Range = 200..<300
+                guard successRange.contains(response.statusCode) else {
+                    print("데이터 요청 실패")
+                    completion(nil)
+                    return
+                }
+                
+                do {
+                    let decodedData = try JSONDecoder().decode(T.self, from: data)
+                    print("디코딩 성공")
+                    completion(decodedData)
+                    return
+                } catch {
+                    print(error)
+                    completion(nil)
+                }
+                
+            } else {
+                print("http 요청 실패")
+                completion(nil)
+            }
+        }.resume()
     }
 }
