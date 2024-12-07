@@ -31,22 +31,36 @@ class ContactListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        setupTableView()
+        setupUI()
+        
     }
     
-    private func setupTableView() {
+    private func setupUI() {
+        view.backgroundColor = .white
+        title = "친구 목록"
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "추가",
+            style: .plain,
+            target: self,
+            action: #selector(didTapAddButton)
+        )
+        
         view.addSubview(tableView)
         tableView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+    }
+    
+    @objc private func didTapAddButton() {
+        print("추가 버튼 눌림")
     }
 }
 
 // 셀 높이
 extension ContactListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        80
+        return 80
     }
 }
 
