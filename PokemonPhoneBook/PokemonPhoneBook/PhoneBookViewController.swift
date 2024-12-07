@@ -8,13 +8,16 @@
 import UIKit
 import SnapKit
 
+// SubViewController
 final class PhoneBookViewController: UIViewController {
     
+    // MARK: - PhoneBookViewController UI
     private let profileImageView = UIImageView()
     private let profileImageRandomChangeButton = UIButton()
     private let nameTextField = UITextField()
     private let numberTextField = UITextField()
     
+    // MARK: - PhoneBookViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -22,7 +25,9 @@ final class PhoneBookViewController: UIViewController {
     }
 }
 
+// MARK: - PhoneBookViewController Private Method
 private extension PhoneBookViewController {
+    /// 서브 뷰의 모든 UI 요소를 배치 및 설정
     func configUI() {
         view.backgroundColor = .white
         
@@ -39,6 +44,7 @@ private extension PhoneBookViewController {
         setupUILayout()
     }
     
+    /// 프로필 이미지를 세팅하는 메소드
     func setupImageView() {
         self.profileImageView.contentMode = .scaleAspectFit
         self.profileImageView.backgroundColor = .clear
@@ -48,6 +54,7 @@ private extension PhoneBookViewController {
         self.profileImageView.layer.borderWidth = 2
     }
     
+    /// 텍스트필드를 세팅하는 메소드
     func setupTextField() {
         [self.nameTextField, self.numberTextField].forEach {
             $0.font = UIFont.systemFont(ofSize: 15, weight: .light)
@@ -59,6 +66,7 @@ private extension PhoneBookViewController {
         self.numberTextField.placeholder = "전화번호를 입력해 주세요"
     }
     
+    /// 프로필 이미지 변경 버튼을 세팅하는 메소드
     func setupChangeButton() {
         var config = UIButton.Configuration.plain()
         
@@ -73,10 +81,12 @@ private extension PhoneBookViewController {
         self.profileImageRandomChangeButton.addTarget(self, action: #selector(changeProfileImage), for: .touchDown)
     }
     
+    /// 프로필 이미지를 랜덤으로 변경하는 메소드
     @objc func changeProfileImage() {
         
     }
     
+    /// 서브 뷰의 모든 UI 레이아웃을 설정하는 메소드
     func setupUILayout() {
         self.profileImageView.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(10)
@@ -106,6 +116,7 @@ private extension PhoneBookViewController {
         }
     }
     
+    /// 네비게이션 타이틀을 설정하는 메소드
     func setupNavigationTitle() {
         let title = UILabel()
         title.text = "연락처 추가"
@@ -117,11 +128,13 @@ private extension PhoneBookViewController {
         self.navigationItem.titleView = title
     }
     
+    /// 네비게이션바의 오른쪽 버튼을 세팅하는 메소드
     func setupNavigationRightButton() {
         let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
         self.navigationItem.rightBarButtonItem = rightButton
     }
     
+    /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
         
     }
