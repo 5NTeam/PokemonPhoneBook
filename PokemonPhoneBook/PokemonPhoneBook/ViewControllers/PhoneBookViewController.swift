@@ -91,7 +91,11 @@ private extension PhoneBookViewController {
                 return
             }
             
-            guard let imageURL = URL(string: result.sprites.frontDefault) else {
+            // 이로치 포켓몬 등장 확률
+            let luck = Int.random(in: 1...4096) == 777
+            let url = luck ? result.sprites.frontShiny : result.sprites.frontDefault
+            
+            guard let imageURL = URL(string: url) else {
                 print("잘못된 이미지 URL")
                 return
             }
@@ -99,8 +103,14 @@ private extension PhoneBookViewController {
             if let imageData = try? Data(contentsOf: imageURL) {
                 if let image = UIImage(data: imageData) {
                     DispatchQueue.main.async {
-                        self.profileImageView.image = image
-                        self.view.layoutIfNeeded()
+                        if luck {
+                            self.profileImageView.image = image
+                            self.shiningImage()
+                            self.view.layoutIfNeeded()
+                        } else {
+                            self.profileImageView.image = image
+                            self.view.layoutIfNeeded()
+                        }
                         print("이미지 변환 성공")
                     }
                 } else {
@@ -110,6 +120,26 @@ private extension PhoneBookViewController {
                 print("이미지 URL, 데이터 변환 실패")
             }
         }
+    }
+    
+    func shiningImage() {
+        let gradientLayer = CAGradientLayer()
+        let gradationColor = [UIColor.clear, .yellow.withAlphaComponent(0.15), .clear]
+        gradientLayer.frame = self.profileImageView.bounds
+        gradientLayer.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradientLayer.endPoint = CGPoint(x: 1.0, y: 0.5)
+        gradientLayer.colors = gradationColor.map { $0.cgColor }
+        gradientLayer.locations = [-0.5, -0.25, 0]
+        
+        let animation = CABasicAnimation(keyPath: "locations")
+        animation.fromValue = [-0.5, -0.25, 0]
+        animation.toValue = [1, 1.25, 1.5]
+        animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        animation.repeatCount = 2
+        animation.duration = 0.5
+        gradientLayer.add(animation, forKey: "shimmering")
+        
+        self.profileImageView.layer.addSublayer(gradientLayer)
     }
     
     /// 서브 뷰의 모든 UI 레이아웃을 설정하는 메소드
