@@ -9,9 +9,6 @@ import UIKit
 
 class ContactListViewController: UIViewController {
     
-    // 테이블 뷰
-    let tableView = UITableView()
-    
     // 더미 데이터
     let contacts = [
         ("sonny", "010-5555-6666"),
@@ -23,11 +20,51 @@ class ContactListViewController: UIViewController {
         ("Mini", "010-3333-4444")
     ]
     
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .white
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(ContactTableViewCell.self, forCellReuseIdentifier: ContactTableViewCell.id)
+        return tableView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
+        setupTableView()
     }
-
     
-
+    private func setupTableView() {
+        view.addSubview(tableView)
+        tableView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+    }
 }
 
+// 셀 높이
+extension ContactListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        80
+    }
+}
+
+extension ContactListViewController: UITableViewDataSource{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return contacts.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ContactTableViewCell.id, for: indexPath) as? ContactTableViewCell else {
+            return UITableViewCell()
+        }
+        let contact = contacts[indexPath.row]
+        cell.nameLabel.text = contact.0
+        cell.phoneNumberLable.text = contact.1
+        cell.profileImageView.backgroundColor = .white
+        return cell
+    }
+    
+    
+}

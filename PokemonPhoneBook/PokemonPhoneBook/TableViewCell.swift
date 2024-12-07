@@ -13,7 +13,7 @@ class ContactTableViewCell: UITableViewCell {
     static let id = "tableViewCell"
     
     // 프로필 이미지
-    private let profileImageView: UIImageView = {
+    public let profileImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -23,7 +23,7 @@ class ContactTableViewCell: UITableViewCell {
     }()
     
     // 이름 레이블
-    private let nameLabel: UILabel = {
+    public let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .boldSystemFont(ofSize: 16)
         label.textColor = .black
@@ -31,7 +31,7 @@ class ContactTableViewCell: UITableViewCell {
     }()
     
     // 전화번호 레이블
-    private let phoneNumberLable: UILabel = {
+    public let phoneNumberLable: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.textColor = .darkGray
@@ -56,7 +56,7 @@ class ContactTableViewCell: UITableViewCell {
             
         ].forEach { contentView.addSubview($0) }
         profileImageView.snp.makeConstraints {
-            $0.leading.equalToSuperview().offset(20)
+            $0.leading.equalToSuperview().offset(30)
             $0.centerY.equalToSuperview()
             $0.width.height.equalTo(60)
         }
@@ -67,7 +67,7 @@ class ContactTableViewCell: UITableViewCell {
         }
         
         phoneNumberLable.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(20)
+            $0.trailing.equalToSuperview().inset(30)
             $0.centerY.equalToSuperview()
         }
     }
