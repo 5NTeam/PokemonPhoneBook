@@ -122,6 +122,7 @@ private extension PhoneBookViewController {
         }
     }
     
+    /// 이미지 특수효과 적용 메소드
     func shiningImage() {
         let gradientLayer = CAGradientLayer()
         let gradationColor = [UIColor.clear, .yellow.withAlphaComponent(0.15), .clear]
@@ -199,6 +200,8 @@ private extension PhoneBookViewController {
 // MARK: - PhoneBookViewController Fetch Method
 private extension PhoneBookViewController {
     
+    /// 서버에서 데이터를 받아오는 메소드
+    /// - Parameter completion: 받아온 데이터를 디코딩하고 클로저에 전달
     func fetchData<T: Decodable>(_ completion: @escaping (T?) -> Void) {
         let randomNumber = Int.random(in: 1...1000)
         guard let url = URL(string: "https://pokeapi.co/api/v2/pokemon/\(randomNumber)") else {
