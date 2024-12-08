@@ -8,15 +8,18 @@
 import UIKit
 import SnapKit
 
+// Cutom TableView Cell
 final class PhoneBookCell: UITableViewCell {
     
-    static let id = "PhoneBookCell"
+    static let id = "PhoneBookCell" // 셀 고유 이름
     
+    // MARK: - Cell UI
     private let stackView = UIStackView()
     private let nameLabel = UILabel()
     private let numberLabel = UILabel()
     private let profileImage = UIImageView()
     
+    // MARK: - Cell Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -30,7 +33,9 @@ final class PhoneBookCell: UITableViewCell {
     }
 }
 
+// MARK: - Cell UI Setting Method
 private extension PhoneBookCell {
+    /// 셀의 모든 UI를 세팅하는 메소드
     func configUI() {
         self.backgroundColor = .clear
         self.addSubview(self.stackView)
@@ -41,6 +46,7 @@ private extension PhoneBookCell {
         setupUILayout()
     }
     
+    /// 이미지뷰를 세팅하는 메소드
     func setupImageView() {
         self.profileImage.contentMode = .scaleAspectFit
         self.profileImage.backgroundColor = .clear
@@ -50,6 +56,7 @@ private extension PhoneBookCell {
         self.profileImage.layer.borderWidth = 2
     }
     
+    /// 레이블 뷰를 세팅하는 메소드
     func setupLabelView() {
         [self.nameLabel, self.numberLabel].forEach {
             $0.textColor = .black
@@ -61,6 +68,7 @@ private extension PhoneBookCell {
         self.numberLabel.textAlignment = .right
     }
     
+    /// 스택뷰를 세팅하는 메소드
     func setupStackView() {
         self.stackView.axis = .horizontal
         self.stackView.spacing = 10
@@ -73,6 +81,7 @@ private extension PhoneBookCell {
         }
     }
     
+    /// 모든 UI의 오토레이아웃을 설정하는 메소드
     func setupUILayout() {
         self.stackView.snp.makeConstraints {
             $0.center.equalToSuperview()
