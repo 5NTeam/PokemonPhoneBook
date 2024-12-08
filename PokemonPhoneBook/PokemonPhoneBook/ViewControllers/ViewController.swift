@@ -160,7 +160,6 @@ extension ViewController: UITableViewDataSource {
         }
         
         cell.updataCellUI(self.dataSource[indexPath.row])
-        cell.selectionStyle = .none
                 
         return cell
     }
@@ -183,5 +182,10 @@ extension ViewController: UITableViewDataSource {
 
 // MARK: - ViewController TableView Delegate Method
 extension ViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 서브뷰 업데이트 메소드 추가
+        
+        self.navigationController?.navigationBar.isHidden = false
+        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
+    }
 }
