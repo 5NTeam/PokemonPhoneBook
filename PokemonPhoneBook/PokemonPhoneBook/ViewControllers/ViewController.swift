@@ -7,9 +7,13 @@
 
 import UIKit
 import SnapKit
+import CoreData
 
 // Main ViewController
 final class ViewController: UIViewController {
+    
+    // 테이블 뷰 데이터 소스
+    private var dataSource: [PhoneBookData] = []
     
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -18,9 +22,16 @@ final class ViewController: UIViewController {
     
     private let pushButton = UIButton()
     
+    // MARK: - ViewController CoreData Container
+    private var container: NSPersistentContainer!
+    
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 코어 데이터와 연결
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.container = appDelegate.persistentContainer
         
         configUI() // UI 세팅
     }
@@ -115,7 +126,7 @@ extension ViewController: UITableViewDataSource {
     
     // 테이블뷰의 셀 수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
+        return self.dataSource.count
     }
     
     // 테이블뷰 셀 설정

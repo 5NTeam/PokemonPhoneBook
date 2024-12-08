@@ -57,9 +57,7 @@ private extension PhoneBookCell {
             $0.backgroundColor = .clear
             $0.numberOfLines = 1
         }
-        self.nameLabel.text = "name"
         self.nameLabel.textAlignment = .left
-        self.numberLabel.text = "010-1111-2222"
         self.numberLabel.textAlignment = .right
     }
     
