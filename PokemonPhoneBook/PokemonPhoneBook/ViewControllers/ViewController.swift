@@ -7,14 +7,13 @@
 
 import UIKit
 import SnapKit
-import CoreData
 
 // Main ViewController
-final class ViewController: UIViewController {
+final class ViewController: UIViewController, PhoneBookDataDelegate {
     
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
-    
+        
     // MARK: - ViewController UI
     private let tableView = UITableView()
     
@@ -22,16 +21,9 @@ final class ViewController: UIViewController {
     
     private let pushButton = UIButton()
     
-    // MARK: - ViewController CoreData Container
-    private var container: NSPersistentContainer!
-    
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // 코어 데이터와 연결
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        self.container = appDelegate.persistentContainer
         
         configUI() // UI 세팅
     }
@@ -39,7 +31,8 @@ final class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        readAllData() // 코어 데이터에서 데이터 불러오기
+        // 코어 데이터에서 데이터 알파벳 내림차순으로 불러오기
+        updateTableViewData()
                         
         self.tableView.reloadData()
         self.navigationController?.navigationBar.isHidden = true // 뷰가 생성될 때마다 네비게이션 바 히든
@@ -126,22 +119,15 @@ private extension ViewController {
 
 // MARK: - ViewController Private Method
 private extension ViewController {
-    func readAllData() {
-        do {
-            let phoneBooks = try self.container.viewContext.fetch(PhoneBookData.fetchRequest())
-            // 데이터를 알파벳 순으로 정렬하여 데이터소스에 전달
-            self.dataSource = phoneBooks.sorted(by: {
-                if let lhs = $0.name, let rhs = $1.name {
-                    return lhs < rhs
-                } else {
-                    return false
-                }
-            })
-            print("데이터 불러오기 성공")
-            
-        } catch {
-            print("데이터 불러오기 실패", error)
-        }
+    /// 테이블뷰의 데이터소스를 업데이트 하는 메소드
+    func updateTableViewData() {
+        self.dataSource = readAllData().sorted(by: {
+            if let lhs = $0.name, let rhs = $1.name {
+                return lhs < rhs
+            } else {
+                return false
+            }
+        })
     }
 }
 
@@ -160,7 +146,6 @@ extension ViewController: UITableViewDataSource {
         }
         
         cell.updataCellUI(self.dataSource[indexPath.row])
-        cell.selectionStyle = .none
                 
         return cell
     }
@@ -183,5 +168,18 @@ extension ViewController: UITableViewDataSource {
 
 // MARK: - ViewController TableView Delegate Method
 extension ViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let data = self.dataSource[indexPath.row]
+        
+        guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+        guard let image = UIImage(data: imageData) else { return }
+        
+        // 서브뷰 업데이트 메소드 추가
+        let destinationView = PhoneBookViewController()
+        destinationView.editPhoneNumber(name: name, number: number, image: image)
+        destinationView.state = .edit
+        
+        self.navigationController?.navigationBar.isHidden = false
+        self.navigationController?.pushViewController(destinationView, animated: true)
+    }
 }
