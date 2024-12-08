@@ -129,7 +129,14 @@ private extension ViewController {
     func readAllData() {
         do {
             let phoneBooks = try self.container.viewContext.fetch(PhoneBookData.fetchRequest())
-            self.dataSource = phoneBooks
+            // 데이터를 알파벳 순으로 정렬하여 데이터소스에 전달
+            self.dataSource = phoneBooks.sorted(by: {
+                if let lhs = $0.name, let rhs = $1.name {
+                    return lhs < rhs
+                } else {
+                    return false
+                }
+            })
             print("데이터 불러오기 성공")
             
         } catch {
