@@ -7,9 +7,13 @@
 
 import UIKit
 import SnapKit
+import CoreData
 
 // Main ViewController
 final class ViewController: UIViewController {
+    
+    // 테이블 뷰 데이터 소스
+    private var dataSource: [PhoneBookData] = []
     
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -18,9 +22,16 @@ final class ViewController: UIViewController {
     
     private let pushButton = UIButton()
     
+    // MARK: - ViewController CoreData Container
+    private var container: NSPersistentContainer!
+    
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 코어 데이터와 연결
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        self.container = appDelegate.persistentContainer
         
         configUI() // UI 세팅
     }
@@ -28,11 +39,14 @@ final class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        readAllData() // 코어 데이터에서 데이터 불러오기
+                        
+        self.tableView.reloadData()
         self.navigationController?.navigationBar.isHidden = true // 뷰가 생성될 때마다 네비게이션 바 히든
     }
 }
 
-// MARK: - ViewController Private Method
+// MARK: - ViewController UI Setting Method
 private extension ViewController {
     
     /// 뷰의 모든 UI를 세팅하는 메소드
@@ -110,12 +124,26 @@ private extension ViewController {
     }
 }
 
+// MARK: - ViewController Private Method
+private extension ViewController {
+    func readAllData() {
+        do {
+            let phoneBooks = try self.container.viewContext.fetch(PhoneBookData.fetchRequest())
+            self.dataSource = phoneBooks
+            print("데이터 불러오기 성공")
+            
+        } catch {
+            print("데이터 불러오기 실패", error)
+        }
+    }
+}
+
 // MARK: - ViewController TableView DataSource Method
 extension ViewController: UITableViewDataSource {
     
     // 테이블뷰의 셀 수
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
+        return self.dataSource.count
     }
     
     // 테이블뷰 셀 설정
@@ -124,8 +152,9 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
+        cell.updataCellUI(self.dataSource[indexPath.row])
         cell.selectionStyle = .none
-        
+                
         return cell
     }
     
