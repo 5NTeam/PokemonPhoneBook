@@ -10,6 +10,16 @@ import SnapKit
 
 // SubViewController
 final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
+    // 현재 뷰의 상태 (새로 생성, 수정)
+    enum ViewState {
+        case create
+        case edit
+    }
+    
+    var state: ViewState = .create // 기본 상태는 새로 생성
+    
+    private var currentName: String = ""
+    private var currentNumbrer: String = ""
     
     // MARK: - PhoneBookViewController UI
     private let profileImageView = UIImageView()
@@ -176,7 +186,7 @@ private extension PhoneBookViewController {
     /// 네비게이션 타이틀을 설정하는 메소드
     func setupNavigationTitle() {
         let title = UILabel()
-        title.text = "연락처 추가"
+        title.text = self.state == .create ? "연락처 추가" : self.currentName
         title.textColor = .black
         title.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         title.textAlignment = .center
@@ -187,15 +197,27 @@ private extension PhoneBookViewController {
     
     /// 네비게이션바의 오른쪽 버튼을 세팅하는 메소드
     func setupNavigationRightButton() {
-        let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
-        self.navigationItem.rightBarButtonItem = rightButton
+        if self.state == .create {
+            let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
+            self.navigationItem.rightBarButtonItem = rightButton
+        } else {
+            let rightButton = UIBarButtonItem(title: "수정", style: .plain, target: self, action: #selector(updatePhoneNumber))
+            self.navigationItem.rightBarButtonItem = rightButton
+        }
     }
     
     /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
         
-        self.createNewPhoneNumber(name, number: number, profileImage: image)
+        self.createNewPhoneNumber(name: name, number: number, profileImage: image)
+        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+    }
+    
+    @objc func updatePhoneNumber() {
+        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
+        
+        self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: number, updateImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
 }
@@ -251,3 +273,14 @@ private extension PhoneBookViewController {
     }
 }
 
+// MARK: - PhoneBookViewController Method
+extension PhoneBookViewController {
+    func editPhoneNumber(name: String, number: String, image: UIImage) {
+        self.nameTextField.text = name
+        self.numberTextField.text = number
+        self.profileImageView.image = image
+        
+        self.currentName = name
+        self.currentNumbrer = number
+    }
+}

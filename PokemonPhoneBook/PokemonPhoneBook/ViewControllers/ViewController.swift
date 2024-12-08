@@ -13,7 +13,7 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
-    
+        
     // MARK: - ViewController UI
     private let tableView = UITableView()
     
@@ -169,9 +169,17 @@ extension ViewController: UITableViewDataSource {
 // MARK: - ViewController TableView Delegate Method
 extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let data = self.dataSource[indexPath.row]
+        
+        guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+        guard let image = UIImage(data: imageData) else { return }
+        
         // 서브뷰 업데이트 메소드 추가
+        let destinationView = PhoneBookViewController()
+        destinationView.editPhoneNumber(name: name, number: number, image: image)
+        destinationView.state = .edit
         
         self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
+        self.navigationController?.pushViewController(destinationView, animated: true)
     }
 }

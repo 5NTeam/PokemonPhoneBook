@@ -11,9 +11,11 @@ import CoreData
 protocol PhoneBookDataDelegate {
     var container: NSPersistentContainer { get }
     
-    func createNewPhoneNumber(_ name: String, number: String, profileImage: UIImage)
+    func createNewPhoneNumber(name: String, number: String, profileImage: UIImage)
     
     func readAllData() -> [PhoneBookData]
+    
+    func updatePhoneNumber(currentName: String, currentNumber: String, updateName: String, updateNumber: String, updateImage: UIImage)
 }
 
 extension PhoneBookDataDelegate {
@@ -22,7 +24,7 @@ extension PhoneBookDataDelegate {
         return appDelegate.persistentContainer
     }
     
-    func createNewPhoneNumber(_ name: String, number: String, profileImage: UIImage) {
+    func createNewPhoneNumber(name: String, number: String, profileImage: UIImage) {
         guard let entity = NSEntityDescription.entity(forEntityName: PhoneBookData.className, in: self.container.viewContext) else { return }
         
         let newNumber = NSManagedObject.init(entity: entity, insertInto: self.container.viewContext)
@@ -48,6 +50,27 @@ extension PhoneBookDataDelegate {
         } catch {
             print("데이터 불러오기 실패", error)
             return []
+        }
+    }
+    
+    func updatePhoneNumber(currentName: String, currentNumber: String, updateName: String, updateNumber: String, updateImage: UIImage) {
+        let fetchRequest = PhoneBookData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@ AND number == %@", currentName, currentNumber)
+        
+        do {
+            let fetchData = try self.container.viewContext.fetch(fetchRequest)
+            let result = fetchData as [NSManagedObject]
+            
+            if let data = result.first {
+                data.setValue(updateName, forKey: PhoneBookData.Key.name)
+                data.setValue(updateNumber, forKey: PhoneBookData.Key.number)
+                data.setValue(updateImage.pngData(), forKey: PhoneBookData.Key.profile)
+            }
+            
+            print("데이터 업데이트 성공")
+            
+        } catch {
+            print("업데이트 실패", error)
         }
     }
 }
