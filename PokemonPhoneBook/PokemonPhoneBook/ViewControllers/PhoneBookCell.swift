@@ -43,7 +43,7 @@ private extension PhoneBookCell {
     
     func setupImageView() {
         self.profileImage.contentMode = .scaleAspectFit
-        self.profileImage.backgroundColor = .lightGray
+        self.profileImage.backgroundColor = .clear
         self.profileImage.layer.cornerRadius = 30
         self.profileImage.clipsToBounds = true
         self.profileImage.layer.borderColor = UIColor.gray.cgColor
@@ -95,6 +95,19 @@ private extension PhoneBookCell {
         self.numberLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.trailing.equalToSuperview()
+        }
+    }
+}
+
+extension PhoneBookCell {
+    func setupUIData(_ data: PhoneBookData) {
+        if let name = data.name, let number = data.number, let profile = data.profile {
+            self.nameLabel.text = name
+            self.numberLabel.text = number
+            self.profileImage.image = UIImage(data: profile)
+        } else {
+            print("데이터를 불러올 수 없습니다")
+            return
         }
     }
 }

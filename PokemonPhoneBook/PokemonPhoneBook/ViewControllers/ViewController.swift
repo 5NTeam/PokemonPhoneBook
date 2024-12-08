@@ -39,11 +39,14 @@ final class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        readAllData() // 코어 데이터에서 데이터 불러오기
+                        
+        self.tableView.reloadData()
         self.navigationController?.navigationBar.isHidden = true // 뷰가 생성될 때마다 네비게이션 바 히든
     }
 }
 
-// MARK: - ViewController Private Method
+// MARK: - ViewController UI Setting Method
 private extension ViewController {
     
     /// 뷰의 모든 UI를 세팅하는 메소드
@@ -121,6 +124,20 @@ private extension ViewController {
     }
 }
 
+// MARK: - ViewController Private Method
+private extension ViewController {
+    func readAllData() {
+        do {
+            let phoneBooks = try self.container.viewContext.fetch(PhoneBookData.fetchRequest())
+            self.dataSource = phoneBooks
+            print("데이터 불러오기 성공")
+            
+        } catch {
+            print("데이터 불러오기 실패", error)
+        }
+    }
+}
+
 // MARK: - ViewController TableView DataSource Method
 extension ViewController: UITableViewDataSource {
     
@@ -135,8 +152,9 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
+        cell.setupUIData(self.dataSource[indexPath.row])
         cell.selectionStyle = .none
-        
+                
         return cell
     }
     

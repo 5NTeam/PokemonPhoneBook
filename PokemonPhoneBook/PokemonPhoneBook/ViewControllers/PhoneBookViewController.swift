@@ -33,7 +33,7 @@ final class PhoneBookViewController: UIViewController {
     }
 }
 
-// MARK: - PhoneBookViewController Private Method
+// MARK: - PhoneBookViewController UI Setting Method
 private extension PhoneBookViewController {
     /// 서브 뷰의 모든 UI 요소를 배치 및 설정
     func configUI() {
