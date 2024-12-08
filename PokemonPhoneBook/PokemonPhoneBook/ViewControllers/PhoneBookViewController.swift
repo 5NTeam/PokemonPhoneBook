@@ -7,10 +7,9 @@
 
 import UIKit
 import SnapKit
-import CoreData
 
 // SubViewController
-final class PhoneBookViewController: UIViewController {
+final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
     
     // MARK: - PhoneBookViewController UI
     private let profileImageView = UIImageView()
@@ -18,16 +17,9 @@ final class PhoneBookViewController: UIViewController {
     private let nameTextField = UITextField()
     private let numberTextField = UITextField()
     
-    // MARK: - PhoneBookViewController CoreData Container
-    private var container: NSPersistentContainer!
-    
     // MARK: - PhoneBookViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // 코어 데이터와 연결
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        self.container = appDelegate.persistentContainer
         
         configUI()
     }
@@ -201,7 +193,9 @@ private extension PhoneBookViewController {
     
     /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
-        createNewPhoneNumber() // 코어데이터에 데이터 저장
+        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
+        
+        self.createNewPhoneNumber(name, number: number, profileImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
 }
@@ -257,23 +251,3 @@ private extension PhoneBookViewController {
     }
 }
 
-private extension PhoneBookViewController {
-    
-    /// 폰 번호와 프로필 이미지를 저장하는 메소드
-    func createNewPhoneNumber() {
-        guard let entity = NSEntityDescription.entity(forEntityName: PhoneBookData.className, in: self.container.viewContext) else { return }
-        
-        let newNumber = NSManagedObject.init(entity: entity, insertInto: self.container.viewContext)
-        newNumber.setValue(self.nameTextField.text, forKey: PhoneBookData.Key.name)
-        newNumber.setValue(self.numberTextField.text, forKey: PhoneBookData.Key.number)
-        newNumber.setValue(self.profileImageView.image?.pngData(), forKey: PhoneBookData.Key.profile)
-        
-        do {
-            try self.container.viewContext.save()
-            print("번호 저장 성공")
-        } catch {
-            print("번호 저장 실패", error)
-            return
-        }
-    }
-}

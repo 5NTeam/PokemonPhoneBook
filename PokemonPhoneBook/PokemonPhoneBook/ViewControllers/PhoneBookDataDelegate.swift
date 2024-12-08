@@ -11,9 +11,9 @@ import CoreData
 protocol PhoneBookDataDelegate {
     var container: NSPersistentContainer { get }
     
-    func createNewPhoneNumber()
+    func createNewPhoneNumber(_ name: String, number: String, profileImage: UIImage)
     
-    func readAllData()
+    func readAllData() -> [PhoneBookData]
 }
 
 extension PhoneBookDataDelegate {
