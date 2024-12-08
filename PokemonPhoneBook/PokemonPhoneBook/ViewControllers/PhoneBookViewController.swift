@@ -201,8 +201,8 @@ private extension PhoneBookViewController {
     
     /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
-        createNewPhoneNumber()
-        self.navigationController?.popViewController(animated: true)
+        createNewPhoneNumber() // 코어데이터에 데이터 저장
+        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
 }
 

@@ -99,8 +99,11 @@ private extension PhoneBookCell {
     }
 }
 
+// MARK: - PhoneBookCell Method
 extension PhoneBookCell {
-    func setupUIData(_ data: PhoneBookData) {
+    /// 셀의 UI를 업데이트 하는 메소드
+    /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
+    func updataCellUI(_ data: PhoneBookData) {
         if let name = data.name, let number = data.number, let profile = data.profile {
             self.nameLabel.text = name
             self.numberLabel.text = number

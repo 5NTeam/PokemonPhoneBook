@@ -152,7 +152,7 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.setupUIData(self.dataSource[indexPath.row])
+        cell.updataCellUI(self.dataSource[indexPath.row])
         cell.selectionStyle = .none
                 
         return cell
