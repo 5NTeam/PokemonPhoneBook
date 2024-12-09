@@ -17,7 +17,7 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
     // 삭제를 위해 선택한 셀
-    private var selectedItem: [PhoneBookData] = []
+    private var selectedItem: Set<PhoneBookData> = []
         
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -132,11 +132,11 @@ private extension ViewController {
             }
             ValidationAlert.confirmDeleteDataAlert(on: self) {
                 self.deleteAllData()
+                self.updateTableViewData()
+                self.selectedItem.removeAll()
+                self.tableView.reloadData()
+                self.view.layoutIfNeeded()
             }
-            self.updateTableViewData()
-            self.selectedItem.removeAll()
-            self.tableView.reloadData()
-            self.view.layoutIfNeeded()
         }
     }
     
@@ -268,7 +268,11 @@ extension ViewController: UITableViewDelegate {
             self.navigationController?.navigationBar.isHidden = false
             self.navigationController?.pushViewController(destinationView, animated: true)
         } else {
-            self.selectedItem.append(self.dataSource[indexPath.row])
+            guard !self.selectedItem.contains(self.dataSource[indexPath.row]) else {
+                self.selectedItem.remove(self.dataSource[indexPath.row])
+                return
+            }
+            self.selectedItem.insert(self.dataSource[indexPath.row])
         }
     }
     
