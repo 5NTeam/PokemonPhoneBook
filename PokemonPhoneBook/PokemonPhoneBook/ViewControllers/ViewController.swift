@@ -53,7 +53,7 @@ private extension ViewController {
     
     /// 뷰의 모든 UI를 세팅하는 메소드
     func configUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         [self.tableView,
          self.navigationTitle,
          self.pushButton,
@@ -71,7 +71,7 @@ private extension ViewController {
         navigationTitle.text = "친구 목록"
         navigationTitle.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         navigationTitle.textAlignment = .center
-        navigationTitle.textColor = .black
+        navigationTitle.textColor = .label
         navigationTitle.backgroundColor = .clear
     }
     

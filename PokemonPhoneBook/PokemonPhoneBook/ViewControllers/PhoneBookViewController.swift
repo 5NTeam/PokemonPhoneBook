@@ -39,7 +39,7 @@ final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
 private extension PhoneBookViewController {
     /// 서브 뷰의 모든 UI 요소를 배치 및 설정
     func configUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         [self.profileImageView,
          self.profileImageRandomChangeButton,
@@ -60,7 +60,7 @@ private extension PhoneBookViewController {
         self.profileImageView.backgroundColor = .clear
         self.profileImageView.layer.cornerRadius = 100
         self.profileImageView.clipsToBounds = true
-        self.profileImageView.layer.borderColor = UIColor.gray.cgColor
+        self.profileImageView.layer.borderColor = UIColor.darkGray.cgColor
         self.profileImageView.layer.borderWidth = 2
     }
     

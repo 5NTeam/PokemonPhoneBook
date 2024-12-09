@@ -59,7 +59,7 @@ private extension PhoneBookCell {
     /// 레이블 뷰를 세팅하는 메소드
     func setupLabelView() {
         [self.nameLabel, self.numberLabel].forEach {
-            $0.textColor = .black
+            $0.textColor = .label
             $0.font = UIFont.systemFont(ofSize: 20, weight: .regular)
             $0.backgroundColor = .clear
             $0.numberOfLines = 1
