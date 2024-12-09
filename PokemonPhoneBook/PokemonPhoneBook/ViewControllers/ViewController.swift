@@ -21,6 +21,8 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     
     private let pushButton = UIButton()
     
+    private let editingButton = UIButton()
+    
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,11 +49,13 @@ private extension ViewController {
         view.backgroundColor = .white
         [self.tableView,
          self.navigationTitle,
-         self.pushButton].forEach { view.addSubview($0) }
+         self.pushButton,
+         self.editingButton].forEach { view.addSubview($0) }
         
         setupTableView()
         setupNavigationTitle()
         setupPushButtonView()
+        setupEditingButton()
         setupUILayout()
     }
     
@@ -97,6 +101,24 @@ private extension ViewController {
         self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
     }
     
+    func setupEditingButton() {
+        var config = UIButton.Configuration.plain()
+        
+        var titleAttr = AttributedString.init("편집")
+        titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
+        
+        config.attributedTitle = titleAttr
+        config.baseForegroundColor = .systemBlue
+        
+        self.editingButton.configuration = config
+        self.editingButton.backgroundColor = .clear
+        self.editingButton.addTarget(self, action: #selector(editingTableView), for: .touchUpInside)
+    }
+    
+    @objc func editingTableView() {
+        
+    }
+    
     /// 뷰의 모든 레이아웃을 세팅하는 메소드
     func setupUILayout() {
         self.navigationTitle.snp.makeConstraints {
@@ -113,6 +135,11 @@ private extension ViewController {
         self.pushButton.snp.makeConstraints {
             $0.top.bottom.equalTo(self.navigationTitle)
             $0.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
+        
+        self.editingButton.snp.makeConstraints {
+            $0.top.bottom.equalTo(self.navigationTitle)
+            $0.leading.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
     }
 }
