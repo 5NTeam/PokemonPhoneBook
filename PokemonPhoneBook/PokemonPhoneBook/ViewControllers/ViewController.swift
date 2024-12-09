@@ -168,6 +168,7 @@ extension ViewController: UITableViewDataSource {
 
 // MARK: - ViewController TableView Delegate Method
 extension ViewController: UITableViewDelegate {
+    // 셀이 선택되었을 때 실행할 액션
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let data = self.dataSource[indexPath.row]
         

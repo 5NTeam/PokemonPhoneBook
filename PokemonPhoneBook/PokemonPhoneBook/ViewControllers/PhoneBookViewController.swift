@@ -275,6 +275,11 @@ private extension PhoneBookViewController {
 
 // MARK: - PhoneBookViewController Method
 extension PhoneBookViewController {
+    /// 연락처 수정을 위해 수정할 연락처의 정보를 가져오는 메소드
+    /// - Parameters:
+    ///   - name: 수정할 연락처의 이름
+    ///   - number: 수정할 연락처의 번호
+    ///   - image: 수정할 연락처의 프로필 이미지
     func editPhoneNumber(name: String, number: String, image: UIImage) {
         self.nameTextField.text = name
         self.numberTextField.text = number
