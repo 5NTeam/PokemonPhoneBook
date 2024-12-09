@@ -115,24 +115,20 @@ private extension PhoneBookCell {
         self.checkBox.snp.makeConstraints {
             $0.width.height.equalTo(30)
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview()
         }
         
         self.profileImage.snp.makeConstraints {
             $0.width.height.equalTo(60)
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(self.checkBox.snp.trailing).offset(10)
         }
         
         self.nameLabel.snp.makeConstraints {
             $0.width.equalTo(100)
             $0.centerY.equalToSuperview()
-            $0.leading.equalTo(self.profileImage.snp.trailing).offset(10)
         }
         
         self.numberLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview()
         }
     }
 }
@@ -143,12 +139,20 @@ extension PhoneBookCell {
     /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
     func updataCellUI(_ data: PhoneBookData) {
         if let name = data.name, let number = data.number, let profile = data.profile {
+            self.checkBox.isHidden = true
             self.nameLabel.text = name
             self.numberLabel.text = number
             self.profileImage.image = UIImage(data: profile)
         } else {
             print("데이터를 불러올 수 없습니다")
             return
+        }
+    }
+    
+    func editingCell(_ data: PhoneBookData) {
+        updataCellUI(data)
+        UIView.animate(withDuration: 0.2) {
+            self.checkBox.isHidden = false
         }
     }
 }

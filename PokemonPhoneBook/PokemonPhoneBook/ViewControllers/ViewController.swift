@@ -151,6 +151,7 @@ private extension ViewController {
     func refreshUI() {
         setupPushButtonView()
         setupEditingButton()
+        self.tableView.reloadData()
     }
     
     /// 뷰의 모든 레이아웃을 세팅하는 메소드
@@ -209,7 +210,7 @@ extension ViewController: UITableViewDataSource {
         if self.viewState == .nomal {
             cell.updataCellUI(self.dataSource[indexPath.row])
         } else {
-            
+            cell.editingCell(self.dataSource[indexPath.row])
         }
                 
         return cell
