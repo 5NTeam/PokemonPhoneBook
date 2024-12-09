@@ -72,9 +72,14 @@ private extension PhoneBookViewController {
             $0.textColor = .black
             $0.keyboardType = .default
             $0.clearButtonMode = .whileEditing
+            $0.autocapitalizationType = .none
+            $0.delegate = self
         }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
+        self.nameTextField.tag = 1
         self.numberTextField.placeholder = "전화번호를 입력해 주세요(- 없이 숫자만 입력)"
+        self.numberTextField.tag = 2
+        self.numberTextField.keyboardType = .numberPad // 번호 입력시 숫자패드 키보드 표시
     }
     
     /// 프로필 이미지 변경 버튼을 세팅하는 메소드
@@ -290,6 +295,19 @@ private extension PhoneBookViewController {
     }
 }
 
+// MARK: - PhoneBookViewController UITextField Delegate Method
+extension PhoneBookViewController: UITextFieldDelegate {
+    // 넘버 텍스트필드에는 숫자만 입력할 수 있도록 제한하기 위한 메소드 설정
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField.tag == 2 { // numberTextField만 숫자 제한
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true // 다른 텍스트 필드는 제한하지 않음
+    }
+}
+
 // MARK: - PhoneBookViewController Method
 extension PhoneBookViewController {
     /// 연락처 수정을 위해 수정할 연락처의 정보를 가져오는 메소드
@@ -329,6 +347,9 @@ extension PhoneBookViewController {
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: number)
     }
     
+    /// 폰 번호에 하이픈(-) 기호를 자동 추가하는 메소드
+    /// - Parameter number: 하이픈을 추가할 폰 번호
+    /// - Returns: 하이픈이 추가된 폰 번호
     private func withHypen(number: String) -> String {
         var phoneNumber = number
         
