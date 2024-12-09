@@ -18,6 +18,8 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
     
+    private var selectedItem: [PhoneBookData] = []
+    
     // 뷰의 현재 상태
     private var viewState: EditingMode = .nomal
         
@@ -116,7 +118,26 @@ private extension ViewController {
     /// 선택된 테이블뷰 셀을 삭제하는 메소드
     /// 선택된 셀이 없을 경우 전체 삭제
     func deleteTableViewCell() {
-        print("deleteTableViewCell")
+        if !self.selectedItem.isEmpty  {
+            ValidationAlert.confirmDeleteDataAlert(on: self) {
+                self.selectedItem.forEach {
+                    guard let name = $0.name, let number = $0.number else { return }
+                    self.deleteData(name: name, number: number)
+                }
+                self.updateTableViewData()
+                self.selectedItem.removeAll()
+                self.tableView.reloadData()
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            ValidationAlert.confirmDeleteDataAlert(on: self) {
+                self.deleteAllData()
+            }
+            self.updateTableViewData()
+            self.selectedItem.removeAll()
+            self.tableView.reloadData()
+            self.view.layoutIfNeeded()
+        }
     }
     
     /// 에디팅 버튼의 UI를 세팅하는 메소드
@@ -236,19 +257,25 @@ extension ViewController: UITableViewDataSource {
 extension ViewController: UITableViewDelegate {
     // 셀이 선택되었을 때 실행할 액션
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let data = self.dataSource[indexPath.row]
-        
-        guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
-        guard let image = UIImage(data: imageData) else { return }
-        let phoneNumber = number.split(separator: "-")
-        
-        // 서브뷰 업데이트 메소드 추가
-        let destinationView = PhoneBookViewController()
-        destinationView.editPhoneNumber(name: name, number: phoneNumber.joined(), image: image)
-        destinationView.state = .edit
-        
-        self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.pushViewController(destinationView, animated: true)
+        // 뷰 모드가 노말이라면 연락처 수정 기능
+        // 뷰 모드가 편집이라면 셀 선택
+        if self.viewState == .nomal {
+            let data = self.dataSource[indexPath.row]
+            
+            guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+            guard let image = UIImage(data: imageData) else { return }
+            let phoneNumber = number.split(separator: "-")
+            
+            // 서브뷰 업데이트 메소드 추가
+            let destinationView = PhoneBookViewController()
+            destinationView.editPhoneNumber(name: name, number: phoneNumber.joined(), image: image)
+            destinationView.state = .edit
+            
+            self.navigationController?.navigationBar.isHidden = false
+            self.navigationController?.pushViewController(destinationView, animated: true)
+        } else {
+            self.selectedItem.append(self.dataSource[indexPath.row])
+        }
     }
     
     // 테이블뷰 셀을 editing 할 때 옵션 선택 = delete

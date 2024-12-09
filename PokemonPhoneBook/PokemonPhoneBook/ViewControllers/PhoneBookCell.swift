@@ -55,6 +55,7 @@ private extension PhoneBookCell {
     }
     
     func setupCheckBox() {
+        self.checkBox.isSelected = self.isSelected ? true : false
         self.checkBox.backgroundColor = .clear
         self.checkBox.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
         self.checkBox.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
@@ -64,6 +65,7 @@ private extension PhoneBookCell {
     
     @objc func checkBoxToggle() {
         self.checkBox.isSelected.toggle()
+        self.isSelected.toggle()
     }
     
     /// 이미지뷰를 세팅하는 메소드
@@ -140,6 +142,7 @@ extension PhoneBookCell {
     func updataCellUI(_ data: PhoneBookData) {
         if let name = data.name, let number = data.number, let profile = data.profile {
             self.checkBox.isHidden = true
+            self.checkBox.isSelected = false
             self.nameLabel.text = name
             self.numberLabel.text = number
             self.profileImage.image = UIImage(data: profile)

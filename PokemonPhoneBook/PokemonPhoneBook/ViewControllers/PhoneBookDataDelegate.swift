@@ -18,6 +18,8 @@ protocol PhoneBookDataDelegate {
     func updatePhoneNumber(currentName: String, currentNumber: String, updateName: String, updateNumber: String, updateImage: UIImage)
     
     func deleteData(name: String, number: String)
+    
+    func deleteAllData()
 }
 
 // MARK: - CoreData CRUD Method
@@ -113,6 +115,22 @@ extension PhoneBookDataDelegate {
             
         } catch {
             print("데이터 삭제 실패", error)
+        }
+    }
+    
+    /// 코어 데이터의 모든 데이터를 삭제하는 메소드
+    func deleteAllData() {
+        do {
+            let result = try self.container.viewContext.fetch(PhoneBookData.fetchRequest())
+            
+            for data in result as [NSManagedObject] {
+                self.container.viewContext.delete(data)
+            }
+            
+            try self.container.viewContext.save()
+            print("데이터 전체 삭제 성공")
+        } catch {
+            print("데이터 전체 삭제 실패", error)
         }
     }
 }
