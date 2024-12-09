@@ -213,7 +213,7 @@ private extension PhoneBookViewController {
     @objc func storePhoneNumber() {
         // 텍스트필드 혹은 이미지가 비어있는지 확인
         guard checkTextField() else {
-            ValidationAlert.showValidationAlert(on: self)
+            ValidationAlert.showValidationAlert(on: self, title: "잘못된 입력", message: "올바르지 않은 입력 값 입니다.\n다시 입력해 주세요")
             print("입력 오류")
             return
         }

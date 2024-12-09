@@ -10,18 +10,14 @@ import SnapKit
 
 // Main ViewController
 final class ViewController: UIViewController, PhoneBookDataDelegate {
-    fileprivate enum EditingMode {
-        case editing
-        case nomal
-    }
+    
+    // 뷰의 현재 상태
+    private var editingMode: Bool = false
     
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
-    
+    // 삭제를 위해 선택한 셀
     private var selectedItem: [PhoneBookData] = []
-    
-    // 뷰의 현재 상태
-    private var viewState: EditingMode = .nomal
         
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -92,11 +88,11 @@ private extension ViewController {
     func setupPushButtonView() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = self.viewState == .nomal ? AttributedString("추가") : AttributedString("지우기")
+        var titleAttr = !self.editingMode ? AttributedString("추가") : AttributedString("지우기")
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = self.viewState == .nomal ? .systemBlue : .systemRed
+        config.baseForegroundColor = !self.editingMode ? .systemBlue : .systemRed
         
         self.pushButton.configuration = config
         self.pushButton.backgroundColor = .clear
@@ -107,7 +103,7 @@ private extension ViewController {
     /// 버튼의 액션 메소드
     /// 버튼을 누르면 PhoneBookViewController 뷰가 쌓임
     @objc func pushButtonAction() {
-        if self.viewState == .nomal {
+        if !self.editingMode {
             self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
             self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
         } else {
@@ -130,6 +126,10 @@ private extension ViewController {
                 self.view.layoutIfNeeded()
             }
         } else {
+            guard !self.dataSource.isEmpty else {
+                ValidationAlert.showValidationAlert(on: self, title: "경고", message: "삭제할 데이터가 없습니다!!")
+                return
+            }
             ValidationAlert.confirmDeleteDataAlert(on: self) {
                 self.deleteAllData()
             }
@@ -144,11 +144,11 @@ private extension ViewController {
     func setupEditingButton() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = self.viewState == .nomal ? AttributedString("편집") : AttributedString("취소")
+        var titleAttr = !self.editingMode ? AttributedString("편집") : AttributedString("취소")
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = self.viewState == .nomal ? .systemBlue : .systemGray
+        config.baseForegroundColor = !self.editingMode ? .systemBlue : .systemGray
         
         self.editingButton.configuration = config
         self.editingButton.backgroundColor = .clear
@@ -157,15 +157,9 @@ private extension ViewController {
     
     /// 현재 뷰의 모드를 바꾸는 메소드
     @objc func editingTableView() {
-        if self.viewState == .nomal {
-            self.viewState = .editing
-            refreshUI()
-            view.layoutIfNeeded()
-        } else {
-            self.viewState = .nomal
-            refreshUI()
-            view.layoutIfNeeded()
-        }
+        self.editingMode.toggle()
+        refreshUI()
+        view.layoutIfNeeded()
     }
     
     /// 버튼의 UI를 새로고침하는 메소드
@@ -228,7 +222,7 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        if self.viewState == .nomal {
+        if !self.editingMode {
             cell.updataCellUI(self.dataSource[indexPath.row])
         } else {
             cell.editingCell(self.dataSource[indexPath.row])
@@ -259,7 +253,7 @@ extension ViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // 뷰 모드가 노말이라면 연락처 수정 기능
         // 뷰 모드가 편집이라면 셀 선택
-        if self.viewState == .nomal {
+        if !self.editingMode {
             let data = self.dataSource[indexPath.row]
             
             guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
