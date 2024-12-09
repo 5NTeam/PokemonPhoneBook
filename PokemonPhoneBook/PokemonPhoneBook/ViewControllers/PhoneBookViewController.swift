@@ -74,7 +74,7 @@ private extension PhoneBookViewController {
             $0.clearButtonMode = .whileEditing
         }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
-        self.numberTextField.placeholder = "전화번호를 입력해 주세요"
+        self.numberTextField.placeholder = "전화번호를 입력해 주세요(- 없이 숫자만 입력)"
     }
     
     /// 프로필 이미지 변경 버튼을 세팅하는 메소드
@@ -217,7 +217,9 @@ private extension PhoneBookViewController {
         
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
         
-        self.createNewPhoneNumber(name: name, number: number, profileImage: image)
+        let phoneNumber = withHypen(number: number)
+        
+        self.createNewPhoneNumber(name: name, number: phoneNumber, profileImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
     
@@ -230,7 +232,9 @@ private extension PhoneBookViewController {
         
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
         
-        self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: number, updateImage: image)
+        let phoneNumber = withHypen(number: number)
+        
+        self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: phoneNumber, updateImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
 }
@@ -302,13 +306,41 @@ extension PhoneBookViewController {
         self.currentNumbrer = number
     }
     
+    /// 입력된 값에 문제가 없는지 확인하는 메소드
+    /// - Returns: 문제가 있는 경우 = false, 없는 경우 = true
     private func checkTextField() -> Bool {
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let profile = self.profileImageView.image?.pngData() else { return false }
         
         if name.isEmpty || number.isEmpty || profile.isEmpty {
             return false
         } else {
+            guard validatePhoneNumber(number: number) else { return false }
+            
             return true
         }
+    }
+    
+    /// 입력값이 폰 번호 형식인지 확인하는 메소드
+    /// - Parameter number: 입력값
+    /// - Returns: 폰 번호 형식과 일치하다면 true, 불일치할 경우 false
+    private func validatePhoneNumber(number: String) -> Bool {
+        // 폰 번호의 형식인지 확인하기 위한 정규식
+        let regex = "^0([0-9]{1,2})-?([0-9]{3,4})-?([0-9]{4})$"
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: number)
+    }
+    
+    private func withHypen(number: String) -> String {
+        var phoneNumber = number
+        
+        if phoneNumber.count == 9 {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+        } else if phoneNumber.count >= 9 && phoneNumber.dropLast(phoneNumber.count - 2) == "02" {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+        } else {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 3))
+        }
+        phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.endIndex, offsetBy: -4))
+        
+        return phoneNumber
     }
 }
