@@ -6,19 +6,14 @@
 //
 
 import UIKit
+import CoreData
 
 class ContactListViewController: UIViewController {
     
-    // 더미 데이터
-    let contacts = [
-        ("sonny", "010-5555-6666"),
-        ("changSu", "010-1111-2222"),
-        ("siHyeon", "010-4444-5555"),
-        ("gangMin", "010-8888-9999"),
-        ("teaMin", "010-7777-9999"),
-        ("jiHyo", "010-6666-0000"),
-        ("Mini", "010-3333-4444")
-    ]
+    // 코어데이터 컨텍스트 추가
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    let contacts = [Contact] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -33,6 +28,12 @@ class ContactListViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchContacts()
+        tableView.reloadData()
     }
     
     private func setupUI() {
@@ -57,6 +58,15 @@ class ContactListViewController: UIViewController {
         let phoneBookVC = PhoneBookViewController()
         navigationController?.pushViewController(phoneBookVC, animated: true)
     }
+    
+    private func fetchContacts() {
+        let repuest: NSFetchRequest<Contact> = Contact.fetchRequest()
+        do {
+            contacts = try context.fetch(repuest)
+        } catch {
+            print("\(error) 연락처 불러오기 실패")
+        }
+    }
 }
 
 // 셀 높이
@@ -76,9 +86,13 @@ extension ContactListViewController: UITableViewDataSource{
             return UITableViewCell()
         }
         let contact = contacts[indexPath.row]
-        cell.nameLabel.text = contact.0
-        cell.phoneNumberLable.text = contact.1
-        cell.profileImageView.backgroundColor = .white
+        cell.nameLabel.text = contact.name
+        cell.phoneNumberLable.text = contact.phoneNumber
+        if let imageData = contact.profileImage {
+            cell.profileImageView.image = UIImage(data: imageData)
+        } else {
+            cell.profileImageView.image = nil
+        }
         return cell
     }
     

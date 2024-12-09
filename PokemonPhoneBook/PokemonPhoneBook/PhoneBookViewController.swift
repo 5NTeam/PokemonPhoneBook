@@ -9,6 +9,10 @@ import UIKit
 
 class PhoneBookViewController: UIViewController {
     
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    private var selectedImageData: Data?
+    
     // 프로필 이미지
     private let profileImageView: UIImageView = {
         let imageView = UIImageView()
@@ -93,8 +97,7 @@ class PhoneBookViewController: UIViewController {
         }
         
     }
-    // test
-    
+        
     @objc private func generateRandomImage() {
         print("랜덤 이미지 버튼 눌림")
         
