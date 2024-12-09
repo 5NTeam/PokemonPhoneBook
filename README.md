@@ -244,7 +244,74 @@ func readAllData() {
 
 https://github.com/user-attachments/assets/8326ef41-c17a-4e3f-9f88-2e1373ed148c
 
-### Lv.7 ~ Lv.8
+### Lv.7 ~ Lv.8 테이블뷰 셀 선택시 액션 구현
+
+Lv 7과 Lv 8에서는 테이블뷰의 셀을 선택시 `PhoneBookViewController` 창을 네비게이션으로 띄워 내용을 수정하고, 수정된 내용을 코어데이터에 업데이트하여 반영하는 작업을 진행해야 했다.
+시작부터 난관에 부딪혔는데, 바로 `PhoneBookViewController`를 어떻게 띄울 것인지에 대한 문제였다. 과제에서는 새로운 뷰를 만들지 말고 기존 뷰를 활용하라고 했기 때문에 여러가지 고민을 해야 했다.
+
+첫 번째 고민은 셀을 선택했을 때, 선택한 셀의 프로필 이미지, 이름, 전화번호 등의 데이터를 어떻게 전달할 것인가에 대한 고민이었다.
+우선 셀의 선택 액션을 어떻게 구현할지 생각했는데, 테이블뷰 델리게이트 메소드를 활용하면 좋을 것 같았다.
+```swift
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { ... }
+```
+이 메소드를 활용하면 테이블 뷰가 선택되었을 때 내부 코드가 실행되도록 할 수 있었다.
+마침 `IndexPath`도 있었기 때문에 이것을 활용해서 셀의 데이터를 불러오기로 했다. 셀은 `dataSource` 라는 배열에서 정보를 가져와 내용을 구성한다.
+때문에 반대로 셀의 정보를 가져오고 싶으면 `dataSource` 배열의 `IndexPath.row`번째 데이터를 가져오면 되는 것이다.
+```swift
+let data = self.dataSource[indexPath.row]
+        
+guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+guard let image = UIImage(data: imageData) else { return }
+```
+셀의 정보를 가져왔으니 이걸 `PhoneBookViewController`에 전달하여 오픈하면 되는데, 이것을 구현하기 위해 많은 고민을 했다.
+처음에는 델리게이트 패턴을 만들까 싶었지만, 두 개의 뷰 컨트롤러는 서로 네비게이션뷰를 통해 화면 전환을 할 뿐, 연결점이 없었다.
+
+코어데이터를 프로토콜로 만들어 사용하고 있으니 이걸 이용해서 구현할까? 싶었으나, 코어데이터 프로토콜의 목적은 코어데이터의 CRUD 이기 때문에 연관성이 없는 기능을 넣으면 역할이 애매해진다고 느껴서 포기했다.
+그럼 어떤 방법이 좋을까 고민하다가, 예전에 스토리보드로 구현한 뷰 컨트롤러를 인스턴스화 해서 가져온 일이 생각났다.
+
+혹시 뷰 컨트롤러를 인스턴스화 하고, 인스턴스화 된 변수에 테이블뷰 셀의 데이터를 입력하고 네비게이션뷰를 통해 불러오면 되지 않을까?
+실험을 위해 우선 뷰 컨트롤러를 인스턴스화 하여 네비게이션뷰로 불러오는 코드를 작성해보았다.
+```swift
+let destinationView = PhoneBookViewController()
+
+self.navigationController?.navigationBar.isHidden = false
+self.navigationController?.pushViewController(destinationView, animated: true)
+```
+이렇게 했더니 테이블뷰의 셀을 누르면 네비게이션을 통해 뷰 컨트롤러가 나타났다.
+나는 여기서 확신을 얻고 `PhoneBookViewController`에 새로운 메소드를 추가했다.
+```swift
+func editPhoneNumber(name: String, number: String, image: UIImage) {
+     self.nameTextField.text = name
+     self.numberTextField.text = number
+     self.profileImageView.image = image
+        
+     self.currentName = name
+     self.currentNumbrer = number
+}
+```
+이 메소드를 통해 외부에서 매개변수에 값을 입력하면, 파라미터 값을 뷰 컨트롤러에 전달하여 뷰 컨트롤러가 열렸을 때 이미 모든 값이 채워진 상태로 사용자에게 보여지게 된다.
+이제 이 메소드를 테이블뷰 델리게이트 메소드에 추가하면 완성이다.
+```swift
+ // 셀이 선택되었을 때 실행할 액션
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+     let data = self.dataSource[indexPath.row]
+        
+     guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+     guard let image = UIImage(data: imageData) else { return }
+        
+     // 서브뷰 업데이트 메소드 추가
+     let destinationView = PhoneBookViewController()
+     destinationView.editPhoneNumber(name: name, number: number, image: image)
+     destinationView.state = .edit
+        
+     self.navigationController?.navigationBar.isHidden = false
+     self.navigationController?.pushViewController(destinationView, animated: true)
+}
+```
+이 외에도 `PhoneBookViewController`에 `enum`을 추가하여 현재 뷰 컨트롤러의 상태가 `Create`인지, `Update`인지 확인하여 서로 다른 메소드가 사용되도록 적용하였다.
+
+https://github.com/user-attachments/assets/343b8839-971b-4c4d-b628-a80041ce973a
+
 
 
 
