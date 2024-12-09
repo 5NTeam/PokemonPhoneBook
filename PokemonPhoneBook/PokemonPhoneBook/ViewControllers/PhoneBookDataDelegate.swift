@@ -16,6 +16,8 @@ protocol PhoneBookDataDelegate {
     func readAllData() -> [PhoneBookData]
     
     func updatePhoneNumber(currentName: String, currentNumber: String, updateName: String, updateNumber: String, updateImage: UIImage)
+    
+    func deleteData(name: String, number: String)
 }
 
 extension PhoneBookDataDelegate {
@@ -71,6 +73,22 @@ extension PhoneBookDataDelegate {
             
         } catch {
             print("업데이트 실패", error)
+        }
+    }
+    
+    func deleteData(name: String, number: String) {
+        let fetchRequest = PhoneBookData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@ AND number == %@", name, number)
+        
+        do {
+            let result = try self.container.viewContext.fetch(fetchRequest)
+            
+            for data in result as [NSManagedObject] {
+                self.container.viewContext.delete(data)
+            }
+            
+        } catch {
+            print("데이터 삭제 실패", error)
         }
     }
 }

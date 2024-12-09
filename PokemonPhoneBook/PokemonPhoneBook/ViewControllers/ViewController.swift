@@ -184,4 +184,23 @@ extension ViewController: UITableViewDelegate {
         self.navigationController?.navigationBar.isHidden = false
         self.navigationController?.pushViewController(destinationView, animated: true)
     }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard editingStyle == .delete else { return }
+        
+        let data = self.dataSource[indexPath.row]
+        guard let name = data.name, let number = data.number else { return }
+        
+        self.tableView.beginUpdates()
+        
+        self.dataSource.remove(at: indexPath.row)
+        self.deleteData(name: name, number: number)
+        self.tableView.deleteRows(at: [indexPath], with: .fade)
+        
+        self.tableView.endUpdates()
+    }
 }
