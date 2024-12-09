@@ -71,6 +71,7 @@ private extension PhoneBookViewController {
             $0.borderStyle = .roundedRect
             $0.textColor = .black
             $0.keyboardType = .default
+            $0.clearButtonMode = .whileEditing
         }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
         self.numberTextField.placeholder = "전화번호를 입력해 주세요"
