@@ -18,6 +18,7 @@ final class PhoneBookCell: UITableViewCell {
     private let nameLabel = UILabel()
     private let numberLabel = UILabel()
     private let profileImage = UIImageView()
+    private let checkBox = UIButton()
     
     // MARK: - Cell Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -31,6 +32,12 @@ final class PhoneBookCell: UITableViewCell {
         
         configUI()
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        configUI()
+    }
 }
 
 // MARK: - Cell UI Setting Method
@@ -41,9 +48,22 @@ private extension PhoneBookCell {
         self.addSubview(self.stackView)
         
         setupStackView()
+        setupCheckBox()
         setupImageView()
         setupLabelView()
         setupUILayout()
+    }
+    
+    func setupCheckBox() {
+        self.checkBox.backgroundColor = .clear
+        self.checkBox.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
+        self.checkBox.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
+        self.checkBox.imageView?.tintColor = .systemBlue
+        self.checkBox.addTarget(self, action: #selector(checkBoxToggle), for: .touchDown)
+    }
+    
+    @objc func checkBoxToggle() {
+        self.checkBox.isSelected.toggle()
     }
     
     /// 이미지뷰를 세팅하는 메소드
@@ -76,7 +96,10 @@ private extension PhoneBookCell {
         self.stackView.distribution = .fill
         self.stackView.backgroundColor = .clear
         
-        [self.profileImage, self.nameLabel, self.numberLabel].forEach {
+        [self.checkBox,
+         self.profileImage,
+         self.nameLabel,
+         self.numberLabel].forEach {
             self.stackView.addArrangedSubview($0)
         }
     }
@@ -89,10 +112,16 @@ private extension PhoneBookCell {
             $0.width.equalToSuperview().inset(30)
         }
         
+        self.checkBox.snp.makeConstraints {
+            $0.width.height.equalTo(30)
+            $0.centerY.equalToSuperview()
+            $0.leading.equalToSuperview()
+        }
+        
         self.profileImage.snp.makeConstraints {
             $0.width.height.equalTo(60)
             $0.centerY.equalToSuperview()
-            $0.leading.equalToSuperview()
+            $0.leading.equalTo(self.checkBox.snp.trailing).offset(10)
         }
         
         self.nameLabel.snp.makeConstraints {

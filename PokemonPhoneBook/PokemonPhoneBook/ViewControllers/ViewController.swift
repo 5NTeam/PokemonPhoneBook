@@ -138,17 +138,17 @@ private extension ViewController {
     @objc func editingTableView() {
         if self.viewState == .nomal {
             self.viewState = .editing
-            refreshButton()
+            refreshUI()
             view.layoutIfNeeded()
         } else {
             self.viewState = .nomal
-            refreshButton()
+            refreshUI()
             view.layoutIfNeeded()
         }
     }
     
     /// 버튼의 UI를 새로고침하는 메소드
-    func refreshButton() {
+    func refreshUI() {
         setupPushButtonView()
         setupEditingButton()
     }
