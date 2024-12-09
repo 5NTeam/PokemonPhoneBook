@@ -10,9 +10,16 @@ import SnapKit
 
 // Main ViewController
 final class ViewController: UIViewController, PhoneBookDataDelegate {
+    fileprivate enum EditingMode {
+        case editing
+        case nomal
+    }
     
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
+    
+    // 뷰의 현재 상태
+    private var viewState: EditingMode = .nomal
         
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -79,15 +86,15 @@ private extension ViewController {
         self.tableView.separatorInset.right = 20
     }
     
-    /// 버튼의 UI를 세팅하는 메소드
+    /// 푸쉬 버튼의 UI를 세팅하는 메소드
     func setupPushButtonView() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = AttributedString.init("추가")
+        var titleAttr = self.viewState == .nomal ? AttributedString("추가") : AttributedString("지우기")
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .systemBlue
+        config.baseForegroundColor = self.viewState == .nomal ? .systemBlue : .systemRed
         
         self.pushButton.configuration = config
         self.pushButton.backgroundColor = .clear
@@ -101,22 +108,38 @@ private extension ViewController {
         self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
     }
     
+    /// 에디팅 버튼의 UI를 세팅하는 메소드
     func setupEditingButton() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = AttributedString.init("편집")
+        var titleAttr = self.viewState == .nomal ? AttributedString("편집") : AttributedString("취소")
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .systemBlue
+        config.baseForegroundColor = self.viewState == .nomal ? .systemBlue : .systemGray
         
         self.editingButton.configuration = config
         self.editingButton.backgroundColor = .clear
         self.editingButton.addTarget(self, action: #selector(editingTableView), for: .touchUpInside)
     }
     
+    /// 현재 뷰의 모드를 바꾸는 메소드
     @objc func editingTableView() {
-        
+        if self.viewState == .nomal {
+            self.viewState = .editing
+            refreshButton()
+            view.layoutIfNeeded()
+        } else {
+            self.viewState = .nomal
+            refreshButton()
+            view.layoutIfNeeded()
+        }
+    }
+    
+    /// 버튼의 UI를 새로고침하는 메소드
+    func refreshButton() {
+        setupPushButtonView()
+        setupEditingButton()
     }
     
     /// 뷰의 모든 레이아웃을 세팅하는 메소드
