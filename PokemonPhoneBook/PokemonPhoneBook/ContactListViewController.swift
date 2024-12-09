@@ -13,7 +13,7 @@ class ContactListViewController: UIViewController {
     // 코어데이터 컨텍스트 추가
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    let contacts = [Contact] = []
+    var contacts: [Contact] = []
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -82,19 +82,39 @@ extension ContactListViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ContactTableViewCell.id, for: indexPath) as? ContactTableViewCell else {
-            return UITableViewCell()
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: ContactTableViewCell.id, for: indexPath) as? ContactTableViewCell else {
+                return UITableViewCell()
+            }
+            let contact = contacts[indexPath.row]
+            cell.nameLabel.text = contact.name
+            cell.phoneNumberLable.text = contact.phoneNumber
+            
+            // profileImage 처리 수정
+            if let date = contact.profileImage {
+                let imageName = "profile_\(date.timeIntervalSince1970)"
+                if let image = loadImageFromDocumentDirectory(imageName: imageName) {
+                    cell.profileImageView.image = image
+                } else {
+                    cell.profileImageView.image = UIImage(systemName: "person.circle.fill")
+                }
+            } else {
+                cell.profileImageView.image = UIImage(systemName: "person.circle.fill")
+            }
+            return cell
         }
-        let contact = contacts[indexPath.row]
-        cell.nameLabel.text = contact.name
-        cell.phoneNumberLable.text = contact.phoneNumber
-        if let imageData = contact.profileImage {
-            cell.profileImageView.image = UIImage(data: imageData)
-        } else {
-            cell.profileImageView.image = nil
+
+        // 이미지를 Documents 디렉토리에서 로드하는 함수 수정
+        func loadImageFromDocumentDirectory(imageName: String) -> UIImage? {
+            let fileManager = FileManager.default
+            guard let documentURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                return nil
+            }
+            let imageUrl = documentURL.appendingPathComponent(imageName)
+            if fileManager.fileExists(atPath: imageUrl.path) {
+                return UIImage(contentsOfFile: imageUrl.path)
+            }
+            return nil
         }
-        return cell
-    }
-    
+
     
 }

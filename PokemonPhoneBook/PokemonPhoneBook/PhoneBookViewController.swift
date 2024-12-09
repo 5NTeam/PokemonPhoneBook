@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class PhoneBookViewController: UIViewController {
     
@@ -97,7 +98,7 @@ class PhoneBookViewController: UIViewController {
         }
         
     }
-        
+    
     @objc private func generateRandomImage() {
         print("랜덤 이미지 버튼 눌림")
         
@@ -105,14 +106,63 @@ class PhoneBookViewController: UIViewController {
             guard let self = self, let image = image else { return }
             DispatchQueue.main.async {
                 self.profileImageView.image = image
+                // 이미지 데이터를 저장
+                self.selectedImageData = image.pngData()
             }
         }
     }
-    
+    // 적용 버튼
     @objc private func applyButtonTapped() {
-        print("적용 버튼 눌림")
-        navigationController?.popViewController(animated: true)
+        guard let name = nameTextField.text, !name.isEmpty,
+              let phoneNumber = phoneTextField.text, !phoneNumber.isEmpty else {
+            showAlert(message: "이름과 전화번호를 입력해주세요.")
+            return
+        }
+        
+        // 코어데이터에 연락처 저장
+        let newContact = Contact(context: context)
+        newContact.name = name
+        newContact.phoneNumber = phoneNumber
+        
+        // profileImage를 현재 시간으로 저장
+        let currentDate = Date()
+        newContact.profileImage = currentDate
+        
+        // 이미지 데이터를 별도로 저장
+        if let image = profileImageView.image,
+           let imageData = image.pngData() {
+            let imageName = "profile_\(currentDate.timeIntervalSince1970)"
+            saveImageToDocumentDirectory(imageData: imageData, imageName: imageName)
+        }
+        
+        do {
+            try context.save()
+            print("연락처 저장 완료")
+            navigationController?.popViewController(animated: true)
+        } catch {
+            print("\(error) 저장 실패")
+            showAlert(message: "연락처 저장에 실패했습니다.")
+        }
+    }
+    
+    // 이미지 저장하는 함수
+    func saveImageToDocumentDirectory(imageData: Data, imageName: String) {
+        let fileManager = FileManager.default
+        guard let documentURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return
+        }
+        let imageUrl = documentURL.appendingPathComponent(imageName)
+        do {
+            try imageData.write(to: imageUrl)
+            print("이미지 저장 성공: \(imageUrl)")
+        } catch {
+            print("이미지 저장 실패: \(error)")
+        }
+    }
+    // 이름과 번호 미입력 시 나오는 알림
+    private func showAlert(message: String) { // private 추가
+        let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert) // alert로 수정
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
     }
 }
-
-
