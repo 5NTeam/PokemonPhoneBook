@@ -210,6 +210,11 @@ private extension PhoneBookViewController {
     /// 현재 입력한 정보를 저장하는 메소드
     @objc func savePhoneNumber() {
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
+        guard checkTextField() else {
+            ValidationAlert.showValidationAlert(on: self)
+            print("입력 오류")
+            return
+        }
         
         self.createNewPhoneNumber(name: name, number: number, profileImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
@@ -217,6 +222,11 @@ private extension PhoneBookViewController {
     
     @objc func updatePhoneNumber() {
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
+        guard checkTextField() else {
+            ValidationAlert.showValidationAlert(on: self)
+            print("입력 오류")
+            return
+        }
         
         self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: number, updateImage: image)
         self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
@@ -288,5 +298,15 @@ extension PhoneBookViewController {
         
         self.currentName = name
         self.currentNumbrer = number
+    }
+    
+    private func checkTextField() -> Bool {
+        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let profile = self.profileImageView.image?.pngData() else { return false }
+        
+        if name.isEmpty || number.isEmpty || profile.isEmpty {
+            return false
+        } else {
+            return true
+        }
     }
 }
