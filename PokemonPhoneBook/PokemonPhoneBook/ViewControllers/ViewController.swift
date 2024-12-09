@@ -98,14 +98,25 @@ private extension ViewController {
         
         self.pushButton.configuration = config
         self.pushButton.backgroundColor = .clear
-        self.pushButton.addTarget(self, action: #selector(pushDestinationView), for: .touchUpInside)
+        
+        self.pushButton.addTarget(self, action: #selector(pushButtonAction), for: .touchUpInside)
     }
     
     /// 버튼의 액션 메소드
     /// 버튼을 누르면 PhoneBookViewController 뷰가 쌓임
-    @objc func pushDestinationView() {
-        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
-        self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
+    @objc func pushButtonAction() {
+        if self.viewState == .nomal {
+            self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
+            self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
+        } else {
+            deleteTableViewCell()
+        }
+    }
+    
+    /// 선택된 테이블뷰 셀을 삭제하는 메소드
+    /// 선택된 셀이 없을 경우 전체 삭제
+    func deleteTableViewCell() {
+        print("deleteTableViewCell")
     }
     
     /// 에디팅 버튼의 UI를 세팅하는 메소드
@@ -195,7 +206,11 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.updataCellUI(self.dataSource[indexPath.row])
+        if self.viewState == .nomal {
+            cell.updataCellUI(self.dataSource[indexPath.row])
+        } else {
+            
+        }
                 
         return cell
     }
