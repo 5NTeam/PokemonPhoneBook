@@ -14,22 +14,9 @@
 		F90996F52D03098F00A92B66 /* PokemonPhoneBook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokemonPhoneBook.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F909970A2D03099100A92B66 /* Exceptions for "PokemonPhoneBook" folder in "PokemonPhoneBook" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = F90996F42D03098F00A92B66 /* PokemonPhoneBook */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F90996F72D03098F00A92B66 /* PokemonPhoneBook */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				F909970A2D03099100A92B66 /* Exceptions for "PokemonPhoneBook" folder in "PokemonPhoneBook" target */,
-			);
 			path = PokemonPhoneBook;
 			sourceTree = "<group>";
 		};
