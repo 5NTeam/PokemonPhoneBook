@@ -185,22 +185,27 @@ extension ViewController: UITableViewDelegate {
         self.navigationController?.pushViewController(destinationView, animated: true)
     }
     
+    // 테이블뷰 셀을 editing 할 때 옵션 선택 = delete
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .delete
     }
     
+    // 테이블뷰 셀 데이터 삭제 메소드
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         guard editingStyle == .delete else { return }
         
         let data = self.dataSource[indexPath.row]
         guard let name = data.name, let number = data.number else { return }
         
-        self.tableView.beginUpdates()
-        
-        self.dataSource.remove(at: indexPath.row)
-        self.deleteData(name: name, number: number)
-        self.tableView.deleteRows(at: [indexPath], with: .fade)
-        
-        self.tableView.endUpdates()
+        // 데이터 삭제 최종 확인
+        ValidationAlert.confirmDeleteDataAlert(on: self) {
+            self.tableView.beginUpdates()
+            
+            self.dataSource.remove(at: indexPath.row)
+            self.deleteData(name: name, number: number)
+            self.tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            self.tableView.endUpdates()
+        }
     }
 }

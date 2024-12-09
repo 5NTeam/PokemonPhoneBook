@@ -14,7 +14,12 @@ enum ValidationAlert {
         viewController.present(alert, animated: true)
     }
     
-    static func confirmDeleteDataAlert() {
-        
+    static func confirmDeleteDataAlert(on viewController: UIViewController, completion: @escaping () -> Void) {
+        let alert = UIAlertController(title: "경고", message: "정말 삭제 하시겠습니까?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "삭제", style: .destructive) { _ in
+            completion()
+        })
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        viewController.present(alert, animated: true)
     }
 }
