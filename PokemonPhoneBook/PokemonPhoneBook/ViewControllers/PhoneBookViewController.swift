@@ -203,44 +203,36 @@ private extension PhoneBookViewController {
     
     /// 네비게이션바의 오른쪽 버튼을 세팅하는 메소드
     func setupNavigationRightButton() {
-        if self.state == .create {
-            let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
-            self.navigationItem.rightBarButtonItem = rightButton
-        } else {
-            let rightButton = UIBarButtonItem(title: "수정", style: .plain, target: self, action: #selector(updatePhoneNumber))
-            self.navigationItem.rightBarButtonItem = rightButton
-        }
+        let buttonTitle = self.state == .create ? "적용" : "수정"
+        let rightButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(storePhoneNumber))
+        rightButton.title = buttonTitle
+        self.navigationItem.rightBarButtonItem = rightButton
     }
     
     /// 현재 입력한 정보를 저장하는 메소드
-    @objc func savePhoneNumber() {
+    @objc func storePhoneNumber() {
+        // 텍스트필드 혹은 이미지가 비어있는지 확인
         guard checkTextField() else {
             ValidationAlert.showValidationAlert(on: self)
             print("입력 오류")
             return
         }
         
+        // 현재 입력값을 옵셔널 바인딩
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
         
+        // 폰 번호에 하이픈 기호 삽입
         let phoneNumber = withHypen(number: number)
         
-        self.createNewPhoneNumber(name: name, number: phoneNumber, profileImage: image)
-        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
-    }
-    
-    @objc func updatePhoneNumber() {
-        guard checkTextField() else {
-            ValidationAlert.showValidationAlert(on: self)
-            print("입력 오류")
-            return
+        // 새로 작성일 경우 create
+        // 수정하는 경우 edit
+        if self.state == .create {
+            self.createNewPhoneNumber(name: name, number: phoneNumber, profileImage: image)
+            self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+        } else if self.state == .edit {
+            self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: phoneNumber, updateImage: image)
+            self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
         }
-        
-        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
-        
-        let phoneNumber = withHypen(number: number)
-        
-        self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: phoneNumber, updateImage: image)
-        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
     }
 }
 

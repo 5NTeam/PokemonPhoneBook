@@ -174,10 +174,11 @@ extension ViewController: UITableViewDelegate {
         
         guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
         guard let image = UIImage(data: imageData) else { return }
+        let phoneNumber = number.split(separator: "-")
         
         // 서브뷰 업데이트 메소드 추가
         let destinationView = PhoneBookViewController()
-        destinationView.editPhoneNumber(name: name, number: number, image: image)
+        destinationView.editPhoneNumber(name: name, number: phoneNumber.joined(), image: image)
         destinationView.state = .edit
         
         self.navigationController?.navigationBar.isHidden = false
