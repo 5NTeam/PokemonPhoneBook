@@ -39,7 +39,7 @@ final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
 private extension PhoneBookViewController {
     /// 서브 뷰의 모든 UI 요소를 배치 및 설정
     func configUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         [self.profileImageView,
          self.profileImageRandomChangeButton,
@@ -60,7 +60,7 @@ private extension PhoneBookViewController {
         self.profileImageView.backgroundColor = .clear
         self.profileImageView.layer.cornerRadius = 100
         self.profileImageView.clipsToBounds = true
-        self.profileImageView.layer.borderColor = UIColor.gray.cgColor
+        self.profileImageView.layer.borderColor = UIColor.darkGray.cgColor
         self.profileImageView.layer.borderWidth = 2
     }
     
@@ -71,9 +71,15 @@ private extension PhoneBookViewController {
             $0.borderStyle = .roundedRect
             $0.textColor = .black
             $0.keyboardType = .default
+            $0.clearButtonMode = .whileEditing
+            $0.autocapitalizationType = .none
+            $0.delegate = self
         }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
-        self.numberTextField.placeholder = "전화번호를 입력해 주세요"
+        self.nameTextField.tag = 1
+        self.numberTextField.placeholder = "전화번호를 입력해 주세요(- 없이 숫자만 입력)"
+        self.numberTextField.tag = 2
+        self.numberTextField.keyboardType = .numberPad // 번호 입력시 숫자패드 키보드 표시
     }
     
     /// 프로필 이미지 변경 버튼을 세팅하는 메소드
@@ -197,28 +203,36 @@ private extension PhoneBookViewController {
     
     /// 네비게이션바의 오른쪽 버튼을 세팅하는 메소드
     func setupNavigationRightButton() {
-        if self.state == .create {
-            let rightButton = UIBarButtonItem(title: "적용", style: .plain, target: self, action: #selector(savePhoneNumber))
-            self.navigationItem.rightBarButtonItem = rightButton
-        } else {
-            let rightButton = UIBarButtonItem(title: "수정", style: .plain, target: self, action: #selector(updatePhoneNumber))
-            self.navigationItem.rightBarButtonItem = rightButton
-        }
+        let buttonTitle = self.state == .create ? "적용" : "수정"
+        let rightButton = UIBarButtonItem(title: "", style: .plain, target: self, action: #selector(storePhoneNumber))
+        rightButton.title = buttonTitle
+        self.navigationItem.rightBarButtonItem = rightButton
     }
     
     /// 현재 입력한 정보를 저장하는 메소드
-    @objc func savePhoneNumber() {
+    @objc func storePhoneNumber() {
+        // 텍스트필드 혹은 이미지가 비어있는지 확인
+        guard checkTextField() else {
+            ValidationAlert.showValidationAlert(on: self, title: "잘못된 입력", message: "올바르지 않은 입력 값 입니다.\n다시 입력해 주세요")
+            print("입력 오류")
+            return
+        }
+        
+        // 현재 입력값을 옵셔널 바인딩
         guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
         
-        self.createNewPhoneNumber(name: name, number: number, profileImage: image)
-        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
-    }
-    
-    @objc func updatePhoneNumber() {
-        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let image = self.profileImageView.image else { return }
+        // 폰 번호에 하이픈 기호 삽입
+        let phoneNumber = withHypen(number: number)
         
-        self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: number, updateImage: image)
-        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+        // 새로 작성일 경우 create
+        // 수정하는 경우 edit
+        if self.state == .create {
+            self.createNewPhoneNumber(name: name, number: phoneNumber, profileImage: image)
+            self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+        } else if self.state == .edit {
+            self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: phoneNumber, updateImage: image)
+            self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+        }
     }
 }
 
@@ -273,6 +287,19 @@ private extension PhoneBookViewController {
     }
 }
 
+// MARK: - PhoneBookViewController UITextField Delegate Method
+extension PhoneBookViewController: UITextFieldDelegate {
+    // 넘버 텍스트필드에는 숫자만 입력할 수 있도록 제한하기 위한 메소드 설정
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField.tag == 2 { // numberTextField만 숫자 제한
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true // 다른 텍스트 필드는 제한하지 않음
+    }
+}
+
 // MARK: - PhoneBookViewController Method
 extension PhoneBookViewController {
     /// 연락처 수정을 위해 수정할 연락처의 정보를 가져오는 메소드
@@ -287,5 +314,46 @@ extension PhoneBookViewController {
         
         self.currentName = name
         self.currentNumbrer = number
+    }
+    
+    /// 입력된 값에 문제가 없는지 확인하는 메소드
+    /// - Returns: 문제가 있는 경우 = false, 없는 경우 = true
+    private func checkTextField() -> Bool {
+        guard let name = self.nameTextField.text, let number = self.numberTextField.text, let profile = self.profileImageView.image?.pngData() else { return false }
+        
+        if name.isEmpty || number.isEmpty || profile.isEmpty {
+            return false
+        } else {
+            guard validatePhoneNumber(number: number) else { return false }
+            
+            return true
+        }
+    }
+    
+    /// 입력값이 폰 번호 형식인지 확인하는 메소드
+    /// - Parameter number: 입력값
+    /// - Returns: 폰 번호 형식과 일치하다면 true, 불일치할 경우 false
+    private func validatePhoneNumber(number: String) -> Bool {
+        // 폰 번호의 형식인지 확인하기 위한 정규식
+        let regex = "^0([0-9]{1,2})-?([0-9]{3,4})-?([0-9]{4})$"
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: number)
+    }
+    
+    /// 폰 번호에 하이픈(-) 기호를 자동 추가하는 메소드
+    /// - Parameter number: 하이픈을 추가할 폰 번호
+    /// - Returns: 하이픈이 추가된 폰 번호
+    private func withHypen(number: String) -> String {
+        var phoneNumber = number
+        
+        if phoneNumber.count == 9 {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+        } else if phoneNumber.count >= 9 && phoneNumber.dropLast(phoneNumber.count - 2) == "02" {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+        } else {
+            phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 3))
+        }
+        phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.endIndex, offsetBy: -4))
+        
+        return phoneNumber
     }
 }

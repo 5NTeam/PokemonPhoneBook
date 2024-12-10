@@ -11,8 +11,13 @@ import SnapKit
 // Main ViewController
 final class ViewController: UIViewController, PhoneBookDataDelegate {
     
+    // 뷰의 현재 상태
+    private var editingMode: Bool = false
+    
     // 테이블 뷰 데이터 소스
     private var dataSource: [PhoneBookData] = []
+    // 삭제를 위해 선택한 셀
+    private var selectedItem: Set<PhoneBookData> = []
         
     // MARK: - ViewController UI
     private let tableView = UITableView()
@@ -20,6 +25,8 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     private let navigationTitle = UILabel()
     
     private let pushButton = UIButton()
+    
+    private let editingButton = UIButton()
     
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
@@ -44,14 +51,16 @@ private extension ViewController {
     
     /// 뷰의 모든 UI를 세팅하는 메소드
     func configUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         [self.tableView,
          self.navigationTitle,
-         self.pushButton].forEach { view.addSubview($0) }
+         self.pushButton,
+         self.editingButton].forEach { view.addSubview($0) }
         
         setupTableView()
         setupNavigationTitle()
         setupPushButtonView()
+        setupEditingButton()
         setupUILayout()
     }
     
@@ -60,7 +69,7 @@ private extension ViewController {
         navigationTitle.text = "친구 목록"
         navigationTitle.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         navigationTitle.textAlignment = .center
-        navigationTitle.textColor = .black
+        navigationTitle.textColor = .label
         navigationTitle.backgroundColor = .clear
     }
     
@@ -75,26 +84,91 @@ private extension ViewController {
         self.tableView.separatorInset.right = 20
     }
     
-    /// 버튼의 UI를 세팅하는 메소드
+    /// 푸쉬 버튼의 UI를 세팅하는 메소드
     func setupPushButtonView() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = AttributedString.init("추가")
+        let deleteButtonLabel = self.selectedItem.isEmpty ? "모두 지우기" : "(\(self.selectedItem.count) 개) 지우기"
+        
+        var titleAttr = !self.editingMode ? AttributedString("추가") : AttributedString(deleteButtonLabel)
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
-        config.baseForegroundColor = .systemBlue
+        config.baseForegroundColor = !self.editingMode ? .systemBlue : .systemRed
         
         self.pushButton.configuration = config
         self.pushButton.backgroundColor = .clear
-        self.pushButton.addTarget(self, action: #selector(pushDestinationView), for: .touchUpInside)
+        
+        self.pushButton.addTarget(self, action: #selector(pushButtonAction), for: .touchUpInside)
     }
     
     /// 버튼의 액션 메소드
     /// 버튼을 누르면 PhoneBookViewController 뷰가 쌓임
-    @objc func pushDestinationView() {
-        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
-        self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
+    @objc func pushButtonAction() {
+        if !self.editingMode {
+            self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
+            self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
+        } else {
+            deleteTableViewCell()
+        }
+    }
+    
+    /// 선택된 테이블뷰 셀을 삭제하는 메소드
+    /// 선택된 셀이 없을 경우 전체 삭제
+    func deleteTableViewCell() {
+        if !self.selectedItem.isEmpty  {
+            ValidationAlert.confirmDeleteDataAlert(on: self) {
+                self.selectedItem.forEach {
+                    guard let name = $0.name, let number = $0.number else { return }
+                    self.deleteData(name: name, number: number)
+                }
+                self.updateTableViewData()
+                self.selectedItem.removeAll()
+                self.tableView.reloadData()
+                self.view.layoutIfNeeded()
+            }
+        } else {
+            guard !self.dataSource.isEmpty else {
+                ValidationAlert.showValidationAlert(on: self, title: "경고", message: "삭제할 데이터가 없습니다!!")
+                return
+            }
+            ValidationAlert.confirmDeleteDataAlert(on: self) {
+                self.deleteAllData()
+                self.updateTableViewData()
+                self.selectedItem.removeAll()
+                self.tableView.reloadData()
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    /// 에디팅 버튼의 UI를 세팅하는 메소드
+    func setupEditingButton() {
+        var config = UIButton.Configuration.plain()
+        
+        var titleAttr = !self.editingMode ? AttributedString("편집") : AttributedString("취소")
+        titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
+        
+        config.attributedTitle = titleAttr
+        config.baseForegroundColor = !self.editingMode ? .systemBlue : .systemGray
+        
+        self.editingButton.configuration = config
+        self.editingButton.backgroundColor = .clear
+        self.editingButton.addTarget(self, action: #selector(editingTableView), for: .touchUpInside)
+    }
+    
+    /// 현재 뷰의 모드를 바꾸는 메소드
+    @objc func editingTableView() {
+        self.editingMode.toggle()
+        refreshUI()
+        view.layoutIfNeeded()
+    }
+    
+    /// 버튼의 UI를 새로고침하는 메소드
+    func refreshUI() {
+        setupPushButtonView()
+        setupEditingButton()
+        self.tableView.reloadData()
     }
     
     /// 뷰의 모든 레이아웃을 세팅하는 메소드
@@ -113,6 +187,11 @@ private extension ViewController {
         self.pushButton.snp.makeConstraints {
             $0.top.bottom.equalTo(self.navigationTitle)
             $0.trailing.equalTo(view.safeAreaLayoutGuide).inset(20)
+        }
+        
+        self.editingButton.snp.makeConstraints {
+            $0.top.bottom.equalTo(self.navigationTitle)
+            $0.leading.equalTo(view.safeAreaLayoutGuide).inset(20)
         }
     }
 }
@@ -145,7 +224,15 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.updataCellUI(self.dataSource[indexPath.row])
+        // 현재 뷰가 editingMode가 아니라면
+        if !self.editingMode {
+            cell.updataCellUI(self.dataSource[indexPath.row])
+            
+        // 현재 뷰가 editingMode 라면
+        } else {
+            let isSelected = self.selectedItem.contains(self.dataSource[indexPath.row])
+            cell.editingCell(self.dataSource[indexPath.row], isSelected: isSelected)
+        }
                 
         return cell
     }
@@ -170,17 +257,59 @@ extension ViewController: UITableViewDataSource {
 extension ViewController: UITableViewDelegate {
     // 셀이 선택되었을 때 실행할 액션
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 뷰 모드가 노말이라면 연락처 수정 기능
+        // 뷰 모드가 편집이라면 셀 선택
+        if !self.editingMode {
+            let data = self.dataSource[indexPath.row]
+            
+            guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
+            guard let image = UIImage(data: imageData) else { return }
+            let phoneNumber = number.split(separator: "-")
+            
+            // 서브뷰 업데이트 메소드 추가
+            let destinationView = PhoneBookViewController()
+            destinationView.editPhoneNumber(name: name, number: phoneNumber.joined(), image: image)
+            destinationView.state = .edit
+            
+            self.navigationController?.navigationBar.isHidden = false
+            self.navigationController?.pushViewController(destinationView, animated: true)
+            
+        } else {
+            // 선택한 셀을 삭제 목록에 추가
+            // 선택한 셀이 이미 삭제 목록에 있을 경우 삭제 목록에서 제거
+            guard !self.selectedItem.contains(self.dataSource[indexPath.row]) else {
+                self.selectedItem.remove(self.dataSource[indexPath.row])
+                tableView.reloadRows(at: [indexPath], with: .automatic)
+                self.setupPushButtonView()
+                return
+            }
+            self.selectedItem.insert(self.dataSource[indexPath.row])
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            self.setupPushButtonView()
+        }
+    }
+    
+    // 테이블뷰 셀을 editing 할 때 옵션 선택 = delete
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    
+    // 테이블뷰 셀 데이터 삭제 메소드
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        guard editingStyle == .delete else { return }
+        
         let data = self.dataSource[indexPath.row]
+        guard let name = data.name, let number = data.number else { return }
         
-        guard let name = data.name, let number = data.number, let imageData = data.profile else { return }
-        guard let image = UIImage(data: imageData) else { return }
-        
-        // 서브뷰 업데이트 메소드 추가
-        let destinationView = PhoneBookViewController()
-        destinationView.editPhoneNumber(name: name, number: number, image: image)
-        destinationView.state = .edit
-        
-        self.navigationController?.navigationBar.isHidden = false
-        self.navigationController?.pushViewController(destinationView, animated: true)
+        // 데이터 삭제 최종 확인
+        ValidationAlert.confirmDeleteDataAlert(on: self) {
+            self.tableView.beginUpdates()
+            
+            self.dataSource.remove(at: indexPath.row)
+            self.deleteData(name: name, number: number)
+            self.tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            self.tableView.endUpdates()
+        }
     }
 }
