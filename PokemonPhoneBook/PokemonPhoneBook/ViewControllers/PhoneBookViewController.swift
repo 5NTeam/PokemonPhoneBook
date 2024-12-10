@@ -374,6 +374,9 @@ extension PhoneBookViewController {
         return phoneNumber
     }
     
+    /// 전화번호가 이미 존재하는지 체크하는 메소드
+    /// - Parameter number: 체크할 전화번호
+    /// - Returns: 존재하는지 여부(Bool)
     private func checkPhoneNumber(number: String) -> Bool {
         guard self.readSelectData(number) == nil else { return true }
         
