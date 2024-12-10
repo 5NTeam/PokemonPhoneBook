@@ -32,4 +32,15 @@ enum ValidationAlert {
         alert.addAction(UIAlertAction(title: "취소", style: .cancel))
         viewController.present(alert, animated: true)
     }
+    
+    static func promptPhoneNumberResolution(on viewController: UIViewController, completion: @escaping () -> Void) {
+        let alert = UIAlertController(title: "알림", message: "이미 존재하는 번호입니다.\n연락처를 업데이트 하시겠습니까?", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "업데이트", style: .default, handler: { _ in
+            completion()
+        }))
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+        
+        viewController.present(alert, animated: true)
+    }
 }

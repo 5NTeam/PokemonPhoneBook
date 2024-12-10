@@ -224,6 +224,23 @@ private extension PhoneBookViewController {
         // 폰 번호에 하이픈 기호 삽입
         let phoneNumber = withHypen(number: number)
         
+        // 이미 존재하는 번호인지 확인
+        guard !checkPhoneNumber(number: phoneNumber) else {
+            // 이미 존재하는 번호일 경우 Alert으로 선택사항 제공
+            // 1. 적용 취소
+            // 2. 전화번호 업데이트
+            ValidationAlert.promptPhoneNumberResolution(on: self) {
+                guard let currentName = self.readSelectData(phoneNumber)?.name else { return }
+                
+                self.updatePhoneNumber(currentName: currentName, currentNumber: phoneNumber, updateName: name, updateNumber: phoneNumber, updateImage: image)
+                
+                self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+                ValidationAlert.showValidationAlert(on: self, title: "연락처 업데이트", message: "연락처 업데이트가 완료 되었습니다!")
+                print("연락처 업데이트 완료")
+            }
+            return
+        }
+        
         // 새로 작성일 경우 create
         // 수정하는 경우 edit
         if self.state == .create {
@@ -355,5 +372,14 @@ extension PhoneBookViewController {
         phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.endIndex, offsetBy: -4))
         
         return phoneNumber
+    }
+    
+    /// 전화번호가 이미 존재하는지 체크하는 메소드
+    /// - Parameter number: 체크할 전화번호
+    /// - Returns: 존재하는지 여부(Bool)
+    private func checkPhoneNumber(number: String) -> Bool {
+        guard self.readSelectData(number) == nil else { return true }
+        
+        return false
     }
 }
