@@ -147,6 +147,7 @@ extension PhoneBookCell {
     
     /// 뷰가 편집모드일 때 셀 UI를 업데이트 하는 메소드
     /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
+    /// - Parameter isSelected: 현재 셀이 선택되었는지에 대한 정보
     func editingCell(_ data: PhoneBookData, isSelected: Bool) {
         updataCellUI(data)
         let image = isSelected ? UIImage(systemName: "checkmark.circle.fill") : UIImage(systemName: "checkmark.circle")

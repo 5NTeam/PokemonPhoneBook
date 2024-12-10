@@ -224,8 +224,11 @@ extension ViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
+        // 현재 뷰가 editingMode가 아니라면
         if !self.editingMode {
             cell.updataCellUI(self.dataSource[indexPath.row])
+            
+        // 현재 뷰가 editingMode 라면
         } else {
             let isSelected = self.selectedItem.contains(self.dataSource[indexPath.row])
             cell.editingCell(self.dataSource[indexPath.row], isSelected: isSelected)
@@ -270,7 +273,10 @@ extension ViewController: UITableViewDelegate {
             
             self.navigationController?.navigationBar.isHidden = false
             self.navigationController?.pushViewController(destinationView, animated: true)
+            
         } else {
+            // 선택한 셀을 삭제 목록에 추가
+            // 선택한 셀이 이미 삭제 목록에 있을 경우 삭제 목록에서 제거
             guard !self.selectedItem.contains(self.dataSource[indexPath.row]) else {
                 self.selectedItem.remove(self.dataSource[indexPath.row])
                 tableView.reloadRows(at: [indexPath], with: .automatic)
