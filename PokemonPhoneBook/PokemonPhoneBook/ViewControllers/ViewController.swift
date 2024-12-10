@@ -88,7 +88,9 @@ private extension ViewController {
     func setupPushButtonView() {
         var config = UIButton.Configuration.plain()
         
-        var titleAttr = !self.editingMode ? AttributedString("추가") : AttributedString("지우기")
+        let deleteButtonLabel = self.selectedItem.isEmpty ? "모두 지우기" : "(\(self.selectedItem.count) 개) 지우기"
+        
+        var titleAttr = !self.editingMode ? AttributedString("추가") : AttributedString(deleteButtonLabel)
         titleAttr.font = .systemFont(ofSize: 20, weight: .medium)
         
         config.attributedTitle = titleAttr
@@ -272,10 +274,12 @@ extension ViewController: UITableViewDelegate {
             guard !self.selectedItem.contains(self.dataSource[indexPath.row]) else {
                 self.selectedItem.remove(self.dataSource[indexPath.row])
                 tableView.reloadRows(at: [indexPath], with: .automatic)
+                self.setupPushButtonView()
                 return
             }
             self.selectedItem.insert(self.dataSource[indexPath.row])
             tableView.reloadRows(at: [indexPath], with: .automatic)
+            self.setupPushButtonView()
         }
     }
     
