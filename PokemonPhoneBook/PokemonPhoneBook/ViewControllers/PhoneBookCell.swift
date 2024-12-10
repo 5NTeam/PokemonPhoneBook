@@ -18,7 +18,7 @@ final class PhoneBookCell: UITableViewCell {
     private let nameLabel = UILabel()
     private let numberLabel = UILabel()
     private let profileImage = UIImageView()
-    private let checkBox = UIButton()
+    private let checkBox = UIImageView()
     
     // MARK: - Cell Initializer
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -54,18 +54,13 @@ private extension PhoneBookCell {
         setupUILayout()
     }
     
+    /// 체크박스뷰를 세팅하는 메소드
     func setupCheckBox() {
-        self.checkBox.isSelected = self.isSelected ? true : false
         self.checkBox.backgroundColor = .clear
-        self.checkBox.setImage(UIImage(systemName: "checkmark.circle"), for: .normal)
-        self.checkBox.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .selected)
-        self.checkBox.imageView?.tintColor = .systemBlue
-        self.checkBox.addTarget(self, action: #selector(checkBoxToggle), for: .touchDown)
-    }
-    
-    @objc func checkBoxToggle() {
-        self.checkBox.isSelected.toggle()
-        self.isSelected.toggle()
+        self.checkBox.contentMode = .scaleAspectFit
+        self.checkBox.tintColor = .systemBlue
+        self.checkBox.isHidden = true
+        self.checkBox.image = UIImage(systemName: "checkmark.circle")
     }
     
     /// 이미지뷰를 세팅하는 메소드
@@ -142,7 +137,6 @@ extension PhoneBookCell {
     func updataCellUI(_ data: PhoneBookData) {
         if let name = data.name, let number = data.number, let profile = data.profile {
             self.checkBox.isHidden = true
-            self.checkBox.isSelected = false
             self.nameLabel.text = name
             self.numberLabel.text = number
             self.profileImage.image = UIImage(data: profile)
@@ -152,6 +146,8 @@ extension PhoneBookCell {
         }
     }
     
+    /// 뷰가 편집모드일 때 셀 UI를 업데이트 하는 메소드
+    /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
     func editingCell(_ data: PhoneBookData) {
         updataCellUI(data)
         UIView.animate(withDuration: 0.2) {
