@@ -60,7 +60,6 @@ private extension PhoneBookCell {
         self.checkBox.contentMode = .scaleAspectFit
         self.checkBox.tintColor = .systemBlue
         self.checkBox.isHidden = true
-        self.checkBox.image = UIImage(systemName: "checkmark.circle")
     }
     
     /// 이미지뷰를 세팅하는 메소드
@@ -148,10 +147,11 @@ extension PhoneBookCell {
     
     /// 뷰가 편집모드일 때 셀 UI를 업데이트 하는 메소드
     /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
-    func editingCell(_ data: PhoneBookData) {
+    func editingCell(_ data: PhoneBookData, isSelected: Bool) {
         updataCellUI(data)
-        UIView.animate(withDuration: 0.2) {
-            self.checkBox.isHidden = false
-        }
+        let image = isSelected ? UIImage(systemName: "checkmark.circle.fill") : UIImage(systemName: "checkmark.circle")
+        
+        self.checkBox.image = image
+        self.checkBox.isHidden = false
     }
 }

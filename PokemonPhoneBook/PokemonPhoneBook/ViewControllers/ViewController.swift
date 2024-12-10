@@ -225,7 +225,8 @@ extension ViewController: UITableViewDataSource {
         if !self.editingMode {
             cell.updataCellUI(self.dataSource[indexPath.row])
         } else {
-            cell.editingCell(self.dataSource[indexPath.row])
+            let isSelected = self.selectedItem.contains(self.dataSource[indexPath.row])
+            cell.editingCell(self.dataSource[indexPath.row], isSelected: isSelected)
         }
                 
         return cell
@@ -270,9 +271,11 @@ extension ViewController: UITableViewDelegate {
         } else {
             guard !self.selectedItem.contains(self.dataSource[indexPath.row]) else {
                 self.selectedItem.remove(self.dataSource[indexPath.row])
+                tableView.reloadRows(at: [indexPath], with: .automatic)
                 return
             }
             self.selectedItem.insert(self.dataSource[indexPath.row])
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
     }
     
