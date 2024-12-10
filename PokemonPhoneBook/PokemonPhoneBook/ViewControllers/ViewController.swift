@@ -117,7 +117,8 @@ private extension ViewController {
     /// 선택된 셀이 없을 경우 전체 삭제
     func deleteTableViewCell() {
         if !self.selectedItem.isEmpty  {
-            ValidationAlert.confirmDeleteDataAlert(on: self) {
+            ValidationAlert.confirmDeleteDataAlert(on: self) { [weak self] in
+                guard let self else { return }
                 self.selectedItem.forEach {
                     guard let name = $0.name, let number = $0.number else { return }
                     self.deleteData(name: name, number: number)
@@ -132,7 +133,8 @@ private extension ViewController {
                 ValidationAlert.showValidationAlert(on: self, title: "경고", message: "삭제할 데이터가 없습니다!!")
                 return
             }
-            ValidationAlert.confirmDeleteDataAlert(on: self) {
+            ValidationAlert.confirmDeleteDataAlert(on: self) { [weak self] in
+                guard let self else { return }
                 self.deleteAllData()
                 self.updateTableViewData()
                 self.selectedItem.removeAll()
@@ -302,7 +304,8 @@ extension ViewController: UITableViewDelegate {
         guard let name = data.name, let number = data.number else { return }
         
         // 데이터 삭제 최종 확인
-        ValidationAlert.confirmDeleteDataAlert(on: self) {
+        ValidationAlert.confirmDeleteDataAlert(on: self) { [weak self] in
+            guard let self else { return }
             self.tableView.beginUpdates()
             
             self.dataSource.remove(at: indexPath.row)

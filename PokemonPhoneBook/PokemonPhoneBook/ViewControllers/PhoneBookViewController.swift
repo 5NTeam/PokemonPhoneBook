@@ -229,8 +229,8 @@ private extension PhoneBookViewController {
             // 이미 존재하는 번호일 경우 Alert으로 선택사항 제공
             // 1. 적용 취소
             // 2. 전화번호 업데이트
-            ValidationAlert.promptPhoneNumberResolution(on: self) {
-                guard let currentName = self.readSelectData(phoneNumber)?.name else { return }
+            ValidationAlert.promptPhoneNumberResolution(on: self) { [weak self] in
+                guard let self, let currentName = self.readSelectData(phoneNumber)?.name else { return }
                 
                 self.updatePhoneNumber(currentName: currentName, currentNumber: phoneNumber, updateName: name, updateNumber: phoneNumber, updateImage: image)
                 
