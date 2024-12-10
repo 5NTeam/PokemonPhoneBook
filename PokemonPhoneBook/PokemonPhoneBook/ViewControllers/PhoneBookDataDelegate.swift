@@ -15,6 +15,8 @@ protocol PhoneBookDataDelegate {
     
     func readAllData() -> [PhoneBookData]
     
+    func readSelectData(_ selectData: String) -> PhoneBookData?
+    
     func updatePhoneNumber(currentName: String, currentNumber: String, updateName: String, updateNumber: String, updateImage: UIImage)
     
     func deleteData(name: String, number: String)
@@ -63,6 +65,26 @@ extension PhoneBookDataDelegate {
         } catch {
             print("데이터 불러오기 실패", error)
             return []
+        }
+    }
+    
+    /// 코어 데이터의 특정 정보를 불러오는 메소드
+    /// - Parameter selectData: 찾을 데이터
+    /// - Returns: JSON 디코딩 데이터 모델 데이터
+    func readSelectData(_ selectData: String) -> PhoneBookData? {
+        let fetchRequest = PhoneBookData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "number == %@", selectData)
+        
+        do {
+            let fetchData = try self.container.viewContext.fetch(fetchRequest)
+            
+            guard let data = fetchData.first else { return nil }
+            
+            return data
+            
+        } catch {
+            print("존재하지 않는 데이터 입니다", error)
+            return nil
         }
     }
     
