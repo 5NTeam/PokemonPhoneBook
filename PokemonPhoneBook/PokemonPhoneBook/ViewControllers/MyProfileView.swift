@@ -33,6 +33,13 @@ final class MyProfileView: UIView, DataFetched {
     
     // MARK: - MyProfileView Method
     
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard !self.stackView.frame.contains(point) else {
+            return super.hitTest(point, with: event)
+        }
+        return nil
+    }
+    
     /// MyProfileView의 정보를 업데이트 하는 메소드
     func reloadData() {
         setupImageView()
