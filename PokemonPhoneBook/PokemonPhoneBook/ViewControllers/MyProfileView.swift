@@ -91,7 +91,7 @@ private extension MyProfileView {
         [self.nameLabel, self.numberLabel].forEach {
             $0.textColor = .label
             $0.font = UIFont.systemFont(ofSize: 20, weight: .regular)
-            $0.backgroundColor = .blue
+            $0.backgroundColor = .clear
             $0.numberOfLines = 1
         }
         self.nameLabel.textAlignment = .left
