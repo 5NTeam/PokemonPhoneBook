@@ -306,7 +306,7 @@ extension ViewController: UITableViewDataSource {
         let friendLabel = UILabel()
         
         friendLabel.text = "친구 프로필"
-        friendLabel.textColor = .black
+        friendLabel.textColor = .label
         friendLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         friendLabel.textAlignment = .left
         friendLabel.frame = CGRect(x: 10, y: 0, width: 100, height: 25)

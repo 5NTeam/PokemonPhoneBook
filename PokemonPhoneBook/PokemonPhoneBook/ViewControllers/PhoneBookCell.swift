@@ -66,7 +66,7 @@ private extension PhoneBookCell {
     /// 이미지뷰를 세팅하는 메소드
     func setupImageView() {
         self.profileImage.contentMode = .scaleAspectFit
-        self.profileImage.backgroundColor = .clear
+        self.profileImage.backgroundColor = .white
         self.profileImage.layer.cornerRadius = 30
         self.profileImage.clipsToBounds = true
         self.profileImage.layer.borderColor = UIColor.gray.cgColor
