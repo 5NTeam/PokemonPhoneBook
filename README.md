@@ -312,6 +312,99 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
 https://github.com/user-attachments/assets/343b8839-971b-4c4d-b628-a80041ce973a
 
+## 🔥 Challenge 🔥
+
+### 1. 폰 번호 형식을 추가
+
+이번 과제에서는 텍스트필드에 폰 번호를 입력하는게 있는데, 나는 여기에 포매터를 추가하였다.
+사실 굳이 필요 없는 기능이지만, 하이픈 기호를 자동 삽입하기 위해서 포매터를 만들어 주었다.
+
+우선 텍스트필드의 델리게이트를 이용하여 숫자만 입력 가능하게 하고, 폰 번호를 입력하는 텍스트필드에서는 넘버패드 키보드가 표시되도록 수정하였다.
+```swift
+// 넘버 텍스트필드에는 숫자만 입력할 수 있도록 제한하기 위한 메소드 설정
+func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+     if textField.tag == 2 { // numberTextField만 숫자 제한
+          let allowedCharacters = CharacterSet.decimalDigits
+          let characterSet = CharacterSet(charactersIn: string)
+          return allowedCharacters.isSuperset(of: characterSet)
+     }
+     return true // 다른 텍스트 필드는 제한하지 않음
+}
+```
+이렇게 하면 사용자는 텍스트필드에 숫자 외에는 입력할 수 없게 된다.
+
+이제 하이픈 기호를 자동으로 삽입해주는 메소드와 폰 번호 포매터를 만들어 사용자의 입력 값이 폰 번호의 형식인지 검사하는 메소드를 만들어준다.
+```swift
+/// 입력값이 폰 번호 형식인지 확인하는 메소드
+/// - Parameter number: 입력값
+/// - Returns: 폰 번호 형식과 일치하다면 true, 불일치할 경우 false
+private func validatePhoneNumber(number: String) -> Bool {
+// 폰 번호의 형식인지 확인하기 위한 정규식
+     let regex = "^0([0-9]{1,2})-?([0-9]{3,4})-?([0-9]{4})$"
+     return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: number)
+}
+    
+/// 폰 번호에 하이픈(-) 기호를 자동 추가하는 메소드
+/// - Parameter number: 하이픈을 추가할 폰 번호
+/// - Returns: 하이픈이 추가된 폰 번호
+private func withHypen(number: String) -> String {
+     var phoneNumber = number
+        
+     if phoneNumber.count == 9 {
+          phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+     } else if phoneNumber.count >= 9 && phoneNumber.dropLast(phoneNumber.count - 2) == "02" {
+          phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 2))
+     } else {
+          phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.startIndex, offsetBy: 3))
+     }
+     phoneNumber.insert("-", at: phoneNumber.index(phoneNumber.endIndex, offsetBy: -4))
+        
+     return phoneNumber
+}
+```
+원래는 사용자가 입력할 때 실시간으로 하이픈이 추가되는 것을 구현하고 싶었지만, 조건이 너무 많아지고 코드가 꼬이는 바람에 포기했다...
+
+어쨌든 이렇게 하여 사용자는 하이픈기호 없이 번호만 입력하면 자동으로 하이픈을 추가하여 코어데이터에 저장하도록 하는 코드를 완성했다.
+
+| 폰 번호를 아무렇게나 입력하면 | Alert이 경고 | 제대로 입력하면 | 연락처에 저장 |
+| :-: | :-: | :-: | :-: |
+| ![Simulator Screenshot - iPhone 16 Pro - 2024-12-11 at 20 31 58](https://github.com/user-attachments/assets/73752da2-144c-4f36-b0cb-744a876c48b5) | ![Simulator Screenshot - iPhone 16 Pro - 2024-12-11 at 20 32 02](https://github.com/user-attachments/assets/e0979d1e-1e93-4f9d-8d20-02e82e986972) | ![Simulator Screenshot - iPhone 16 Pro - 2024-12-11 at 20 32 18](https://github.com/user-attachments/assets/6caf8ba2-2a9d-4e9d-b013-5a82e3d7a327) | ![Simulator Screenshot - iPhone 16 Pro - 2024-12-11 at 20 32 21](https://github.com/user-attachments/assets/6025da19-3a48-4748-b17b-5c8a021cec03) |
 
 
+### 2. 연락처 개별 삭제 기능
 
+이번 추가 기능들을 구현하며 트러블이 굉장히... 굉장히 많았다.
+가장 큰 문제는 연락처를 선택 삭제하는 부분이었는데, 셀과 뷰 컨트롤러 간의 연결과 업데이트에 대해 많이 공부할 수 있었던 시간이 되었다.
+
+삭제할 데이터를 선택하면 selectedItem: Set<PhoneBookData>라는 배열에 담기게 되고, 삭제를 진행하면 이 배열에 있는 값과 테이블뷰의 데이터소스 값을 비교해서 동일한 값들을 삭제시키는 방법으로 구현했다.
+
+셀을 반복해서 선택하면 selectedItem과 데이터를 비교해서 이미 존재하는 값일 경우 해당 값을 selectedItem에서 삭제하는 것으로 선택 해제를 구현하였다.
+
+셀이 선택되면 체크박스가 체크 되어야 하는데, 이 부분에서 많이 헤맸다.
+결국 중요한건 뷰 컨트롤러에서 셀의 변화를 셀에게 전달해야 한다는 점이었는데, 이번에는 selectedItem에 테이블뷰 셀이 가진 데이터와 같은 데이터가 있는지 비교하여 있을 경우 true, 없을 경우 false를 반환하게 하고 이것을 셀에 전달하여 체크박스의 상태를 변하게 하여 해결했다.
+
+```swift
+let isSelected = self.selectedItem.contains(self.dataSource[indexPath.row])
+cell.editingCell(self.dataSource[indexPath.row], isSelected: isSelected)
+```
+
+https://github.com/user-attachments/assets/335f4b53-0f69-4b1c-b9f9-21069a15d6bf
+
+### 3. 내 프로필 기능
+
+모달로 새로운 화면을 띄웠을 때, 프로필 수정 후 자동으로 모달을 닫고 싶었는데 원하는 대로 실행되지 않았다.
+`dismiss(animation:)`을 통해 닫으려고 했으나 이 과정이 제대로 이루어지지 않았다.
+
+어떤 코드를 수정하면 좋을까 고민하다가 `Alert`의 핸들러를 통해 클로저로 해당 기능을 구현, 저장 후 자동으로 모달이 닫히는 기능을 구현 성공했다.
+
+그러나 모달이 닫혔는데 내 프로필이 업데이트되지 않는 문제 발생했다.
+내 프로필 데이터를 `UserDefaults`에 저장하는데, 모달이 닫혀도 이를 불러오는 작업이 없기 때문인 것으로 추정했고, 이를 해결하기 위해 내 프로필 데이터를 다시 불러오는 `reload()`메소드 작성했다.
+
+이후 모달이 닫혔을 때 액션을 취하기 위해 `PhoneBookController` 에 `@escaping (() -> Void)?` 타입의 지역 변수 클로저를 선언하고 `deinit`에서 해당 클로저를 호출하게 하였다.
+
+그리고 `ViewController`에서 모달뷰가 deinit 됐을 때 프로필뷰를 업데이트 하도록 클로저에 코드를 작성하였고, 최종적으로 원하는 대로 구현에 성공하였다.
+
+사실 델리게이트 패턴을 쓴다던가, 다른 방법도 많은데 굳이 `deinit`을 사용한 이유는 단 한 가지의 기능을 위해 델리게이트를 만들고 사용하는 과정이 번거롭고 과하다고 생각했기 때문이다.
+만약 델리게이트를 만들어 사용했을 것이라면 과제 초반부터 만들어서 적극 사용했을텐데, 이미 그렇지 않은 방향으로 만들어진 구조였기 때문에 이 구조를 무너뜨리지 않는 선에서 기능을 구현하고 싶어서 `deinit`과 클로저를 통해 해당 기능을 구현해 보았다.
+
+![무제6](https://github.com/user-attachments/assets/ab0fc52d-bada-4015-a06c-edf5a9265c58)
