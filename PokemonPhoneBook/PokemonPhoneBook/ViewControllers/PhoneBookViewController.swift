@@ -199,9 +199,9 @@ private extension PhoneBookViewController {
 }
 
 // MARK: - PhoneBookViewController Objecteve-C Method
-private extension PhoneBookViewController {
+@objc private extension PhoneBookViewController {
     /// 프로필 이미지를 랜덤으로 변경하는 메소드
-    @objc func changeProfileImage() {
+    func changeProfileImage() {
         self.fetchData { [weak self] (result: PokemonModel?) in
             guard let self, let result else {
                 print("데이터 불러오기 오류")
@@ -240,7 +240,7 @@ private extension PhoneBookViewController {
     }
     
     /// 현재 입력한 정보를 저장하는 메소드
-    @objc func storePhoneNumber() {
+    func storePhoneNumber() {
         // 텍스트필드 혹은 이미지가 비어있는지 확인
         guard checkTextField() else {
             ValidationAlert.showValidationAlert(on: self, title: "잘못된 입력", message: "올바르지 않은 입력 값 입니다.\n다시 입력해 주세요", completion: nil)
@@ -290,7 +290,7 @@ private extension PhoneBookViewController {
     }
     
     /// 내 프로필 정보(이름, 번호, 이미지)를 저장하는 메소드
-    @objc func savedMyProfile() {
+    func savedMyProfile() {
         storePhoneNumber()
         
         // 저장을 마치면 자동으로 모달을 닫음
