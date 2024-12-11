@@ -91,7 +91,7 @@ private extension PhoneBookViewController {
     /// 프로필 이미지를 세팅하는 메소드
     func setupImageView() {
         self.profileImageView.contentMode = .scaleAspectFit
-        self.profileImageView.backgroundColor = .clear
+        self.profileImageView.backgroundColor = .white
         self.profileImageView.layer.cornerRadius = 100
         self.profileImageView.clipsToBounds = true
         self.profileImageView.layer.borderColor = UIColor.darkGray.cgColor
@@ -122,6 +122,7 @@ private extension PhoneBookViewController {
             $0.keyboardType = .default
             $0.clearButtonMode = .whileEditing
             $0.autocapitalizationType = .none
+            $0.textColor = .label
             $0.delegate = self
         }
         self.nameTextField.placeholder = "이름을 입력해 주세요"
