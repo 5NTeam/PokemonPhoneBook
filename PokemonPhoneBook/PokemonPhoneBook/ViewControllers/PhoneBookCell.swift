@@ -82,6 +82,7 @@ private extension PhoneBookCell {
         }
         self.nameLabel.textAlignment = .left
         self.numberLabel.textAlignment = .right
+        self.numberLabel.textColor = .systemGray
     }
     
     /// 스택뷰를 세팅하는 메소드
@@ -105,7 +106,7 @@ private extension PhoneBookCell {
         self.stackView.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.height.equalToSuperview()
-            $0.width.equalToSuperview().inset(30)
+            $0.width.equalToSuperview().inset(20)
         }
         
         self.checkBox.snp.makeConstraints {

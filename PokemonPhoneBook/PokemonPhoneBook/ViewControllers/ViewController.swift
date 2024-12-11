@@ -28,6 +28,8 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     
     private let editingButton = UIButton()
     
+    private let myProfileView = MyProfileView()
+    
     // MARK: - ViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +39,7 @@ final class ViewController: UIViewController, PhoneBookDataDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        print("viewWillAppear")
         
         // 코어 데이터에서 데이터 알파벳 내림차순으로 불러오기
         updateTableViewData()
@@ -52,12 +55,14 @@ private extension ViewController {
     /// 뷰의 모든 UI를 세팅하는 메소드
     func configUI() {
         view.backgroundColor = .systemBackground
-        [self.tableView,
+        [self.myProfileView,
+         self.tableView,
          self.navigationTitle,
          self.pushButton,
          self.editingButton].forEach { view.addSubview($0) }
         
         setupTableView()
+        setupMyProfileView()
         setupNavigationTitle()
         setupPushButtonView()
         setupEditingButton()
@@ -73,6 +78,38 @@ private extension ViewController {
         navigationTitle.backgroundColor = .clear
     }
     
+    func setupMyProfileView() {
+        self.myProfileView.backgroundColor = .lightGray.withAlphaComponent(0.1)
+        self.myProfileView.layer.borderColor = UIColor.lightGray.cgColor
+        self.myProfileView.layer.borderWidth = 0.5
+        
+        let touchEvent = UITapGestureRecognizer(target: self, action: #selector(showMyProfile))
+        self.myProfileView.addGestureRecognizer(touchEvent)
+    }
+    
+    @objc func showMyProfile() {
+        guard let name = UserDefaults.standard.string(forKey: "myName"),
+              let number = UserDefaults.standard.string(forKey: "myNumber"),
+              let imageData = UserDefaults.standard.data(forKey: "myProfile"),
+              let image = UIImage(data: imageData) else { return }
+        
+        let phoneNumber = number.split(separator: "-").joined()
+        
+        let modalProfileView = PhoneBookViewController()
+        modalProfileView.state = .profile
+        modalProfileView.editPhoneNumber(name: name, number: phoneNumber, image: image)
+        modalProfileView.additionalSafeAreaInsets.top = 30
+        modalProfileView.sheetPresentationController?.preferredCornerRadius = 50
+
+        modalProfileView.deinitCompletion = { [weak self] in
+            guard let self else { return }
+            self.myProfileView.reloadData()
+        }
+        
+        modalProfileView.modalPresentationStyle = .formSheet
+        self.present(modalProfileView, animated: true)
+    }
+    
     /// 테이블 뷰의 UI를 세팅하는 메소드
     func setupTableView() {
         self.tableView.delegate = self
@@ -82,6 +119,7 @@ private extension ViewController {
         self.tableView.showsVerticalScrollIndicator = false
         self.tableView.showsHorizontalScrollIndicator = false
         self.tableView.separatorInset.right = 20
+        self.tableView.sectionHeaderTopPadding = 0
     }
     
     /// 푸쉬 버튼의 UI를 세팅하는 메소드
@@ -130,7 +168,7 @@ private extension ViewController {
             }
         } else {
             guard !self.dataSource.isEmpty else {
-                ValidationAlert.showValidationAlert(on: self, title: "경고", message: "삭제할 데이터가 없습니다!!")
+                ValidationAlert.showValidationAlert(on: self, title: "경고", message: "삭제할 데이터가 없습니다!!", completion: nil)
                 return
             }
             ValidationAlert.confirmDeleteDataAlert(on: self) { [weak self] in
@@ -181,9 +219,15 @@ private extension ViewController {
             $0.height.equalTo(60)
         }
         
+        self.myProfileView.snp.makeConstraints {
+            $0.top.equalTo(self.navigationTitle.snp.bottom).offset(10)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(105)
+        }
+        
         self.tableView.snp.makeConstraints {
             $0.trailing.leading.bottom.equalTo(view)
-            $0.top.equalTo(self.navigationTitle.snp.bottom).inset(10)
+            $0.top.equalTo(self.myProfileView.snp.bottom)
         }
         
         self.pushButton.snp.makeConstraints {
@@ -246,12 +290,32 @@ extension ViewController: UITableViewDataSource {
     
     // 테이블뷰 헤더 크기
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0
+        return 25
     }
     
     // 테이블뷰 헤더 설정 = nil (표시하지 않음)
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
+        let headerView = UIView()
+        let friendLabel = UILabel()
+        
+        friendLabel.text = "  친구 프로필"
+        friendLabel.textColor = .black
+        friendLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        friendLabel.textAlignment = .left
+        friendLabel.frame = CGRect(x: 0, y: 0, width: 100, height: 25)
+        
+        let gradientColor = CAGradientLayer()
+        let colors: [UIColor] = [.blue.withAlphaComponent(0.1), .cyan.withAlphaComponent(0.5)]
+        gradientColor.frame = CGRect(x: 0, y: 0, width: tableView.frame.width, height: 25)
+        gradientColor.colors = colors.map { $0.cgColor }
+        gradientColor.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradientColor.endPoint = CGPoint(x: 1.0, y: 0.5)
+        
+        headerView.layer.addSublayer(gradientColor)
+        
+        headerView.addSubview(friendLabel)
+        
+        return headerView
     }
 }
 

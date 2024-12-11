@@ -14,9 +14,12 @@ final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
     enum ViewState {
         case create
         case edit
+        case profile
     }
     
     var state: ViewState = .create // 기본 상태는 새로 생성
+    
+    var deinitCompletion: (() -> Void)?
     
     private var currentName: String = ""
     private var currentNumbrer: String = ""
@@ -26,12 +29,17 @@ final class PhoneBookViewController: UIViewController, PhoneBookDataDelegate {
     private let profileImageRandomChangeButton = UIButton()
     private let nameTextField = UITextField()
     private let numberTextField = UITextField()
+    private let myProfileSaveButton = UIButton()
     
     // MARK: - PhoneBookViewController Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configUI()
+    }
+    
+    deinit {
+        self.deinitCompletion?()
     }
 }
 
@@ -44,14 +52,50 @@ private extension PhoneBookViewController {
         [self.profileImageView,
          self.profileImageRandomChangeButton,
          self.nameTextField,
-         self.numberTextField].forEach { view.addSubview($0) }
+         self.numberTextField,
+         self.myProfileSaveButton].forEach { view.addSubview($0) }
 
         setupImageView()
         setupChangeButton()
         setupTextField()
         setupNavigationTitle()
         setupNavigationRightButton()
+        setupSaveButton()
         setupUILayout()
+    }
+    
+    func setupSaveButton() {
+        var config = UIButton.Configuration.plain()
+        let gradientColor = CAGradientLayer()
+        
+        let colors: [UIColor] = [.systemMint.withAlphaComponent(0.2), .cyan.withAlphaComponent(0.3), .blue.withAlphaComponent(0.1)]
+        gradientColor.frame = CGRect(x: 0, y: 0, width: 120, height: 50)
+        gradientColor.colors = colors.map { $0.cgColor }
+        gradientColor.startPoint = CGPoint(x: 0.0, y: 0.0)
+        gradientColor.endPoint = CGPoint(x: 1.0, y: 1.0)
+        
+        var titleAttr = AttributedString("저장하기")
+        titleAttr.font = .systemFont(ofSize: 25, weight: .bold)
+        titleAttr.foregroundColor = .white
+        
+        config.attributedTitle = titleAttr
+        config.baseForegroundColor = .white
+        config.baseBackgroundColor = .clear
+        
+        self.myProfileSaveButton.configuration = config
+        self.myProfileSaveButton.clipsToBounds = true
+        self.myProfileSaveButton.layer.addSublayer(gradientColor)
+        self.myProfileSaveButton.layer.cornerRadius = 20
+        self.myProfileSaveButton.addTarget(self, action: #selector(savedMyProfile), for: .touchDown)
+        self.myProfileSaveButton.isHidden = self.state == .profile ? false : true
+    }
+    
+    @objc func savedMyProfile() {
+        storePhoneNumber()
+        ValidationAlert.showValidationAlert(on: self, title: "알림", message: "프로필 업데이트가 완료 되었습니다!") { [weak self] in
+            guard let self else { return }
+            self.dismiss(animated: true)
+        }
     }
     
     /// 프로필 이미지를 세팅하는 메소드
@@ -187,6 +231,13 @@ private extension PhoneBookViewController {
             $0.width.equalTo(300)
             $0.height.equalTo(40)
         }
+        
+        self.myProfileSaveButton.snp.makeConstraints {
+            $0.width.equalTo(120)
+            $0.height.equalTo(50)
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(self.numberTextField.snp.bottom).offset(100)
+        }
     }
     
     /// 네비게이션 타이틀을 설정하는 메소드
@@ -213,7 +264,7 @@ private extension PhoneBookViewController {
     @objc func storePhoneNumber() {
         // 텍스트필드 혹은 이미지가 비어있는지 확인
         guard checkTextField() else {
-            ValidationAlert.showValidationAlert(on: self, title: "잘못된 입력", message: "올바르지 않은 입력 값 입니다.\n다시 입력해 주세요")
+            ValidationAlert.showValidationAlert(on: self, title: "잘못된 입력", message: "올바르지 않은 입력 값 입니다.\n다시 입력해 주세요", completion: nil)
             print("입력 오류")
             return
         }
@@ -224,31 +275,39 @@ private extension PhoneBookViewController {
         // 폰 번호에 하이픈 기호 삽입
         let phoneNumber = withHypen(number: number)
         
-        // 이미 존재하는 번호인지 확인
-        guard !checkPhoneNumber(number: phoneNumber) else {
-            // 이미 존재하는 번호일 경우 Alert으로 선택사항 제공
-            // 1. 적용 취소
-            // 2. 전화번호 업데이트
-            ValidationAlert.promptPhoneNumberResolution(on: self) { [weak self] in
-                guard let self, let currentName = self.readSelectData(phoneNumber)?.name else { return }
-                
-                self.updatePhoneNumber(currentName: currentName, currentNumber: phoneNumber, updateName: name, updateNumber: phoneNumber, updateImage: image)
-                
-                self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
-                ValidationAlert.showValidationAlert(on: self, title: "연락처 업데이트", message: "연락처 업데이트가 완료 되었습니다!")
-                print("연락처 업데이트 완료")
+        if self.state != .edit {
+            // 이미 존재하는 번호인지 확인
+            guard !checkPhoneNumber(number: phoneNumber) else {
+                // 이미 존재하는 번호일 경우 Alert으로 선택사항 제공
+                // 1. 적용 취소
+                // 2. 전화번호 업데이트
+                ValidationAlert.promptPhoneNumberResolution(on: self) { [weak self] in
+                    guard let self, let currentName = self.readSelectData(phoneNumber)?.name else { return }
+                    
+                    self.updatePhoneNumber(currentName: currentName, currentNumber: phoneNumber, updateName: name, updateNumber: phoneNumber, updateImage: image)
+                    
+                    ValidationAlert.showValidationAlert(on: self, title: "연락처 업데이트", message: "연락처 업데이트가 완료 되었습니다!") {
+                        self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+                    }
+                    print("연락처 업데이트 완료")
+                }
+                return
             }
-            return
         }
         
         // 새로 작성일 경우 create
         // 수정하는 경우 edit
-        if self.state == .create {
+        switch self.state {
+        case .create:
             self.createNewPhoneNumber(name: name, number: phoneNumber, profileImage: image)
             self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
-        } else if self.state == .edit {
+        case .edit:
             self.updatePhoneNumber(currentName: self.currentName, currentNumber: self.currentNumbrer, updateName: name, updateNumber: phoneNumber, updateImage: image)
             self.navigationController?.popViewController(animated: true) // 이전 뷰로 돌아가기
+        case .profile:
+            UserDefaults.standard.set(name, forKey: "myName")
+            UserDefaults.standard.set(phoneNumber, forKey: "myNumber")
+            UserDefaults.standard.set(image.pngData(), forKey: "myProfile")
         }
     }
 }
