@@ -33,6 +33,7 @@ final class PhoneBookCell: UITableViewCell {
         configUI()
     }
     
+    // MARK: - Cell PrepareForReuse Setting
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -132,7 +133,7 @@ private extension PhoneBookCell {
 
 // MARK: - PhoneBookCell Method
 extension PhoneBookCell {
-    /// 셀의 UI를 업데이트 하는 메소드
+    /// 뷰가 생성 모드일 때 셀의 UI를 업데이트 하는 메소드
     /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
     func updataCellUI(_ data: PhoneBookData) {
         if let name = data.name, let number = data.number, let profile = data.profile {
@@ -146,7 +147,7 @@ extension PhoneBookCell {
         }
     }
     
-    /// 뷰가 편집모드일 때 셀 UI를 업데이트 하는 메소드
+    /// 뷰가 편집 모드일 때 셀 UI를 업데이트 하는 메소드
     /// - Parameter data: PhoneBookData -> 코어 데이터에서 불러온 정보
     /// - Parameter isSelected: 현재 셀이 선택되었는지에 대한 정보
     func editingCell(_ data: PhoneBookData, isSelected: Bool) {

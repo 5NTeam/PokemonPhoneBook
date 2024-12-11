@@ -14,6 +14,7 @@ enum ValidationAlert {
     ///   - viewController: Alert을 띄울 뷰 컨트롤러
     ///   - title: Alert의 title
     ///   - message: Alert의 message
+    ///   - completion: Alert 확인 후 추가 작업이 있을 경우 작성하는 클로저
     static func showValidationAlert(on viewController: UIViewController, title: String, message: String, completion: (() -> Void)?) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default) { _ in
