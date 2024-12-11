@@ -1,3 +1,7 @@
+# Thumbnail
+
+<img width="2642" alt="Untitled (1)" src="https://github.com/user-attachments/assets/d2bf3df6-19af-479d-a157-70c400f39d9c">
+
 # PokemonPhoneBook
 
 **목표**: Xcode에서 UIKit 프레임워크를 이용해서 스토리보드 혹은 코드베이스로 포켓몬 전화번호부 제작하기
