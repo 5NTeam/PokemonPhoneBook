@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 
+// 코어 데이터의 CRUD를 담당하는 프로토콜
 protocol PhoneBookDataDelegate {
     var container: NSPersistentContainer { get }
     
