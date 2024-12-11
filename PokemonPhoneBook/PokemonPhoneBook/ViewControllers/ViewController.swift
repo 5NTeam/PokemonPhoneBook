@@ -163,10 +163,10 @@ private extension ViewController {
 }
 
 // MARK: - ViewController Objective-C Method
-private extension ViewController {
+@objc private extension ViewController {
     /// 푸쉬 버튼의 액션 메소드
     /// 푸쉬 버튼을 누르면 PhoneBookViewController 뷰가 쌓임
-    @objc func pushButtonAction() {
+    func pushButtonAction() {
         if !self.editingMode {
             self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
             self.navigationController?.navigationBar.isHidden = false // 뷰가 쌓이면 네이게이션바를 보여줌
@@ -176,7 +176,7 @@ private extension ViewController {
     }
     
     /// 현재 뷰의 모드를 바꾸는 메소드
-    @objc func editingTableView() {
+    func editingTableView() {
         self.editingMode.toggle()
         refreshUI()
         view.layoutIfNeeded()
@@ -185,7 +185,7 @@ private extension ViewController {
     /// 프로필 뷰를 터치했을 때 발생하는 액션
     ///
     /// 모달뷰로 프로필뷰를 보여주고 수정할 수 있게 해줌
-    @objc func showMyProfile() {
+    func showMyProfile() {
         guard let name = UserDefaults.standard.string(forKey: "myName"),
               let number = UserDefaults.standard.string(forKey: "myNumber"),
               let imageData = UserDefaults.standard.data(forKey: "myProfile"),
