@@ -243,7 +243,7 @@ private extension ViewController {
                 }
                 self.updateTableViewData()
                 self.selectedItem.removeAll()
-                self.tableView.reloadData()
+                self.refreshUI()
                 self.view.layoutIfNeeded()
             }
         } else {
@@ -256,7 +256,7 @@ private extension ViewController {
                 self.deleteAllData()
                 self.updateTableViewData()
                 self.selectedItem.removeAll()
-                self.tableView.reloadData()
+                self.refreshUI()
                 self.view.layoutIfNeeded()
             }
         }
