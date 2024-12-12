@@ -70,11 +70,12 @@ private extension ViewController {
     
     /// 네비게이션 타이블 UI를 세팅하는 메소드
     func setupNavigationTitle() {
-        navigationTitle.text = "친구 목록"
-        navigationTitle.font = UIFont.systemFont(ofSize: 25, weight: .bold)
-        navigationTitle.textAlignment = .center
-        navigationTitle.textColor = .label
-        navigationTitle.backgroundColor = .clear
+        self.navigationItem.title = "친구 목록"
+        self.navigationTitle.text = "친구 목록"
+        self.navigationTitle.font = UIFont.systemFont(ofSize: 25, weight: .bold)
+        self.navigationTitle.textAlignment = .center
+        self.navigationTitle.textColor = .label
+        self.navigationTitle.backgroundColor = .clear
     }
     
     /// 에디팅 버튼의 UI를 세팅하는 메소드
