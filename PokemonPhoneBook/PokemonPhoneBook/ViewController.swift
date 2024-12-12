@@ -51,10 +51,13 @@ class ViewController: UIViewController {
         
         addButton.addTarget(self, action: #selector(buttonClicked), for: .touchDown)
         
+        
+  
     }
     
     @objc
     private func buttonClicked() {
+        self.navigationController?.pushViewController(PhoneBookViewController(), animated: true)
         print("버튼 클릭")
     }
     
